@@ -103,16 +103,6 @@
     .heroContacts a{color:var(--muted);border-bottom:1px solid var(--line2);padding-bottom:1px}
     .heroContacts a:hover{color:var(--accent);border-color:var(--accent)}
 
-    /* STATS */
-    .stats{position:relative;z-index:1;border-top:1px solid var(--line);background:var(--bg)}
-    .stats .wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
-    .stat{padding:26px 22px;border-left:1px solid var(--line)}
-    .stat:first-child{border-left:none;padding-left:0}
-    .stat .num{font-family:var(--display);font-weight:800;font-size:clamp(30px,4vw,46px);line-height:1;letter-spacing:-.01em}
-    .stat .num .suffix{color:var(--accent)}
-    .stat .cap{margin-top:8px;font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
-    @media (max-width:720px){.stats .wrap{grid-template-columns:repeat(2,1fr)}.stat:nth-child(3){border-left:none;padding-left:0}.stat{border-top:1px solid var(--line)}}
-
     /* SECTION SHELL */
     section.blk{padding:84px 0;border-bottom:1px solid var(--line);position:relative}
     .secHead{display:flex;align-items:baseline;gap:18px;margin-bottom:40px}
@@ -231,15 +221,6 @@
       </div>
     </div>
   </header>
-
-  <div class="stats">
-    <div class="wrap">
-      <div class="stat"><div class="num" data-to="460" data-suffix="+">0</div><div class="cap">Listings analyzed</div></div>
-      <div class="stat"><div class="num" data-to="3" data-suffix="">0</div><div class="cap">Coursera certifications</div></div>
-      <div class="stat"><div class="num" data-to="1" data-prefix="$" data-suffix="K+">0</div><div class="cap">Daily revenue managed</div></div>
-      <div class="stat"><div class="num" data-to="2028" data-raw="1">0</div><div class="cap">Graduating, UGA</div></div>
-    </div>
-  </div>
 
   <section class="blk anchor" id="work">
     <div class="wrap">
@@ -465,17 +446,6 @@
     })();
 
     (function(){
-      var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      var nums=document.querySelectorAll('.stat .num');
-      function paint(el,v,raw){el.innerHTML=(el.dataset.prefix||'')+(raw?v:v.toLocaleString())+(el.dataset.suffix?'<span class="suffix">'+el.dataset.suffix+'</span>':'');}
-      if(reduce){nums.forEach(function(el){paint(el,+el.dataset.to,el.dataset.raw==='1');});return;}
-      var io=new IntersectionObserver(function(en){en.forEach(function(e){if(!e.isIntersecting)return;var el=e.target,to=+el.dataset.to,raw=el.dataset.raw==='1',s=null,dur=1300;
-        function step(ts){if(!s)s=ts;var p=Math.min((ts-s)/dur,1),eased=1-Math.pow(1-p,3),v=Math.round(to*eased);paint(el,v,raw);if(p<1)requestAnimationFrame(step);}
-        requestAnimationFrame(step);io.unobserve(el);});},{threshold:.5});
-      nums.forEach(function(el){io.observe(el);});
-    })();
-
-    (function(){
       var bars=document.getElementById('priceBars'); if(!bars) return;
       var fills=bars.querySelectorAll('.fill');
       function fill(){fills.forEach(function(f){f.style.height=f.dataset.h;});}
@@ -486,10 +456,47 @@
 
     (function(){
       var links=Array.prototype.slice.call(document.querySelectorAll('.navlinks a[data-target]'));
+      if(!links.length) return;
       var secs=links.map(function(a){return document.getElementById(a.dataset.target);}).filter(Boolean);
-      var io=new IntersectionObserver(function(en){var vis=en.filter(function(e){return e.isIntersecting;}).sort(function(a,b){return b.intersectionRatio-a.intersectionRatio;})[0];
-        if(vis&&vis.target.id){links.forEach(function(a){a.classList.toggle('active',a.dataset.target===vis.target.id);});}},{rootMargin:'-40% 0px -55% 0px',threshold:[.1,.25,.5]});
-      secs.forEach(function(s){io.observe(s);});
+      var clickLock=0;
+
+      function setActive(id){
+        links.forEach(function(a){a.classList.toggle('active',a.dataset.target===id);});
+      }
+
+      function current(){
+        var marker=window.scrollY+window.innerHeight*0.35;
+        var atBottom=(window.innerHeight+window.scrollY)>=(document.body.scrollHeight-2);
+        if(atBottom) return secs[secs.length-1].id;
+        var id=secs[0].id;
+        for(var i=0;i<secs.length;i++){
+          if(secs[i].offsetTop<=marker) id=secs[i].id;
+        }
+        return id;
+      }
+
+      var ticking=false;
+      function onScroll(){
+        if(ticking) return;
+        ticking=true;
+        requestAnimationFrame(function(){
+          if(clickLock && Date.now()<clickLock){ ticking=false; return; }
+          setActive(current());
+          ticking=false;
+        });
+      }
+
+      window.addEventListener('scroll',onScroll,{passive:true});
+      window.addEventListener('resize',onScroll);
+
+      links.forEach(function(a){
+        a.addEventListener('click',function(){
+          clickLock=Date.now()+700;
+          setActive(a.dataset.target);
+        });
+      });
+
+      setActive(current());
     })();
   </script>
 </body>

@@ -32,7 +32,8 @@
   }
   #app{position:fixed;inset:0;display:flex;flex-direction:column;padding-top:var(--safe-top);padding-bottom:var(--safe-bottom);}
   .screen{flex:1;display:none;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch;}
-  .screen.active{display:flex;}
+  .screen.active{display:flex;animation:screenIn .18s ease-out;}
+  @keyframes screenIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
   h1,h2,h3{margin:0 0 8px 0;font-weight:700;}
   .topbar{
     display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px;
@@ -58,14 +59,16 @@
   .row{display:flex;flex-wrap:wrap;gap:10px;}
   .row > *{flex:1 1 130px;}
 
-  button{font-family:inherit;-webkit-font-smoothing:antialiased;cursor:pointer;border:none;border-radius:12px;padding:12px 16px;font-size:15px;font-weight:600;color:var(--ink);background:rgba(255,255,255,0.08);transition:transform .08s ease, opacity .08s ease;}
-  button:active{transform:scale(.96);opacity:.85;}
+  button{font-family:inherit;-webkit-font-smoothing:antialiased;cursor:pointer;border:none;border-radius:12px;padding:12px 16px;font-size:15px;font-weight:600;color:var(--ink);background:rgba(255,255,255,0.08);transition:transform .1s ease-out, opacity .08s ease;}
+  button:active{transform:scale(.95);opacity:.8;transition:transform .05s ease,opacity .05s ease;}
   button.primary{background:linear-gradient(180deg,var(--gold-soft),var(--gold));color:#241a08;box-shadow:0 1px 0 rgba(255,255,255,0.35) inset, 0 4px 14px rgba(224,177,61,0.25);}
   button.ok{background:var(--ok);color:#06210f;}
   button.danger{background:rgba(176,57,46,0.18);color:#ff9686;}
   button.ghost{background:rgba(255,255,255,0.07);color:var(--ink-dim);}
   button.big{width:100%;padding:17px;font-size:17px;font-weight:600;border-radius:14px;}
   button.icon{padding:9px 12px;font-size:14px;background:rgba(255,255,255,0.07);}
+  button.iconBtn{width:38px;height:38px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:50%;}
+  button.iconBtn svg{display:block;}
   button:disabled{opacity:.4;cursor:not-allowed;}
 
   .playerRow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:11px 4px;border-bottom:1px solid rgba(255,255,255,0.07);min-height:44px;}
@@ -88,19 +91,34 @@
 
   .modalOverlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center;z-index:50;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);}
   .modalOverlay.active{display:flex;}
+  .modalOverlay.active .modal{animation:sheetUp .2s ease-out;}
+  @keyframes sheetUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
   .modal{
+    position:relative;
     background:rgba(24,36,29,0.92);-webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%);
     border:1px solid rgba(255,255,255,0.08);border-bottom:none;
-    border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:520px;max-height:85vh;overflow-y:auto;padding-bottom:calc(20px + var(--safe-bottom));
+    border-radius:20px 20px 0 0;padding:28px 20px 20px;width:100%;max-width:520px;max-height:85vh;overflow-y:auto;padding-bottom:calc(20px + var(--safe-bottom));
+    box-shadow:0 -20px 60px rgba(0,0,0,.45);
   }
-  .modal h3{color:var(--ink);font-size:17px;font-weight:700;}
+  .modal::before{content:"";position:absolute;top:10px;left:50%;transform:translateX(-50%);width:36px;height:5px;border-radius:3px;background:rgba(255,255,255,0.25);}
+  .modal h3{color:var(--ink);font-size:18px;font-weight:700;letter-spacing:-.01em;}
   .closeRow{display:flex;flex-wrap:wrap;justify-content:flex-end;margin-top:14px;gap:10px;}
 
   .chip{display:inline-flex;align-items:center;justify-content:center;padding:10px 4px;border-radius:10px;background:rgba(255,255,255,0.08);font-weight:600;font-size:14px;}
 
-  .segmented{display:flex;background:rgba(0,0,0,0.25);border-radius:11px;padding:3px;gap:2px;}
-  .segmented button{flex:1;background:transparent;padding:8px;font-size:13px;font-weight:600;border-radius:9px;transition:background .15s ease,color .15s ease;}
-  .segmented button.active{background:var(--gold);color:#241a08;}
+  .segmented{position:relative;display:flex;background:rgba(0,0,0,0.25);border-radius:11px;padding:3px;gap:2px;}
+  .segIndicator{position:absolute;top:3px;bottom:3px;left:3px;border-radius:9px;background:var(--gold);box-shadow:0 1px 4px rgba(0,0,0,.3);transition:transform .3s cubic-bezier(.4,0,.2,1), width .3s cubic-bezier(.4,0,.2,1);z-index:0;}
+  .segmented button{position:relative;z-index:1;flex:1;background:transparent;padding:8px;font-size:13px;font-weight:600;border-radius:9px;transition:color .2s ease;}
+  .segmented button.active{color:#241a08;}
+
+  .toggleRow{display:flex;align-items:center;gap:12px;margin-bottom:10px;cursor:pointer;}
+  .toggleRow-text{flex:1;font-size:14px;line-height:1.4;}
+  .toggle{position:relative;display:inline-block;width:48px;height:29px;flex-shrink:0;}
+  .toggle input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer;}
+  .toggle .track{position:absolute;inset:0;background:rgba(255,255,255,0.16);border-radius:999px;transition:background .2s ease;pointer-events:none;}
+  .toggle input:checked ~ .track{background:var(--ok);}
+  .toggle .thumb{position:absolute;top:2px;left:2px;width:25px;height:25px;background:#fff;border-radius:50%;box-shadow:0 3px 8px rgba(0,0,0,.35);transition:transform .2s cubic-bezier(.4,0,.2,1);pointer-events:none;}
+  .toggle input:checked ~ .thumb{transform:translateX(19px);}
 
   .tvPreviewWrap{width:100%;aspect-ratio:16/9;background:#000;border-radius:16px;overflow:hidden;margin-bottom:14px;border:1px solid rgba(255,255,255,0.08);}
   .tvPreviewWrap canvas{width:100%;height:100%;display:block;}
@@ -194,7 +212,7 @@
   <section id="screen-setup" class="screen">
     <div class="topbar">
       <div class="brand"><span class="suit">♠</span> Poker Table Monitor</div>
-      <button class="icon ghost" id="helpBtn">?</button>
+      <button class="icon ghost iconBtn" id="helpBtn" aria-label="Help" style="font-size:16px;font-weight:700;">?</button>
     </div>
     <div class="content">
 
@@ -230,9 +248,9 @@
 
       <div class="card">
         <h3>Special Hands</h3>
-        <label style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-          <input type="checkbox" id="setSpecialEnabled" style="width:auto;">
-          <span>Enable one special hand per full orbit (a random hand each rotation — never predictable, never always the same seat)</span>
+        <label class="toggleRow">
+          <span class="toggleRow-text">Enable one special hand per full orbit (a random hand each rotation — never predictable, never always the same seat)</span>
+          <span class="toggle"><input type="checkbox" id="setSpecialEnabled"><span class="track"></span><span class="thumb"></span></span>
         </label>
         <div id="variantList"></div>
         <div class="row" style="margin-top:8px;">
@@ -257,7 +275,9 @@
     <div class="topbar">
       <div class="brand"><span class="suit">♠</span> <span id="handLabel">Hand 1</span></div>
       <div style="display:flex;gap:8px;align-items:center;">
-        <button class="icon ghost" id="settingsBtn">⚙️</button>
+        <button class="icon ghost iconBtn" id="settingsBtn" aria-label="Settings">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+        </button>
       </div>
     </div>
 
@@ -338,9 +358,9 @@
         <input type="number" id="editBB" step="0.5" min="0">
       </div>
     </div>
-    <label style="display:flex;align-items:center;gap:10px;margin-top:14px;">
-      <input type="checkbox" id="editSpecialEnabled" style="width:auto;">
-      <span>Special hands enabled</span>
+    <label class="toggleRow" style="margin-top:14px;">
+      <span class="toggleRow-text">Special hands enabled</span>
+      <span class="toggle"><input type="checkbox" id="editSpecialEnabled"><span class="track"></span><span class="thumb"></span></span>
     </label>
     <div id="editVariantList" style="margin-top:8px;"></div>
     <div class="row" style="margin-top:8px;">
@@ -350,6 +370,7 @@
 
     <h3 style="margin-top:18px;">Display mode (this device)</h3>
     <div class="segmented" id="viewModeSeg">
+      <div class="segIndicator" id="segIndicator"></div>
       <button data-mode="controller">Controller</button>
       <button data-mode="combined" class="active">Both</button>
       <button data-mode="tv">Poker View</button>
@@ -385,9 +406,9 @@
     <input type="file" id="photoFileInput" accept="image/*" style="display:none;">
     <label>Name</label>
     <input type="text" id="profileNameInput" maxlength="18" placeholder="Name">
-    <label style="display:flex;align-items:center;gap:10px;margin-top:14px;" id="profileSaveRow">
-      <input type="checkbox" id="profileSaveCheckbox" style="width:auto;" checked>
-      <span>Save this profile so it's available on any device next time</span>
+    <label class="toggleRow" style="margin-top:14px;" id="profileSaveRow">
+      <span class="toggleRow-text">Save this profile so it's available on any device next time</span>
+      <span class="toggle"><input type="checkbox" id="profileSaveCheckbox" checked><span class="track"></span><span class="thumb"></span></span>
     </label>
     <div class="closeRow">
       <button class="danger" id="profileDeleteBtn" style="display:none;margin-right:auto;">Delete profile</button>
@@ -438,7 +459,7 @@
   if(firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY"){
     try{
       const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
-      const { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, onSnapshot } =
+      const { getFirestore, collection, getDocs, getDoc, doc, setDoc, deleteDoc, onSnapshot } =
         await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
       const app = initializeApp(firebaseConfig);
       const db = getFirestore(app);
@@ -465,6 +486,10 @@
           return onSnapshot(doc(db, "games", "active"), snap=>{
             callback(snap.exists() ? snap.data() : null);
           });
+        },
+        async fetchGame(){
+          const snap = await getDoc(doc(db, "games", "active"));
+          return snap.exists() ? snap.data() : null;
         }
       };
     }catch(e){
@@ -488,7 +513,9 @@ const SEAT_COLORS = ["#e0b13d","#2e6fb0","#c0392b","#3fae6a","#9b59b6","#e67e22"
 
 let state = null;
 let prevStateSnapshot = null; // for undo
-let viewMode = localStorage.getItem("pokerTableMonitor.viewMode") || "combined";
+const VALID_VIEW_MODES = ["controller","combined","tv"];
+let viewMode = localStorage.getItem("pokerTableMonitor.viewMode");
+if(!VALID_VIEW_MODES.includes(viewMode)) viewMode = "combined";
 
 function defaultState(){
   return {
@@ -537,20 +564,26 @@ state = loadState();
    Whichever device presses buttons pushes state; every device (including
    pure "Force TV" displays) listens and mirrors it live. No AirPlay needed. */
 let cloudPushTimer = null;
+let cloudPushChain = Promise.resolve(); // serializes writes so a slow one can never land after a newer one
 function cloudPushGameState(){
   clearTimeout(cloudPushTimer);
   cloudPushTimer = setTimeout(()=>{
-    waitForCloud(2000).then(cloud=>{
+    cloudPushChain = cloudPushChain.then(async ()=>{
+      const cloud = await waitForCloud(2000);
       if(!cloud.enabled) return;
       // strip photos that are already synced via the profiles collection, to keep the doc small
       const slimPlayers = state.players.map(p=> p.profileId ? {...p, photo:null} : p);
-      cloud.pushGame({ ...state, players: slimPlayers, _writerId: deviceId, _updatedAt: Date.now() })
-        .catch(e=> console.warn("Cloud game sync failed", e));
+      try{
+        await cloud.pushGame({ ...state, players: slimPlayers, _writerId: deviceId, _updatedAt: Date.now() });
+      }catch(e){ console.warn("Cloud game sync failed", e); }
     });
   }, 250);
 }
+let lastAppliedRemoteAt = 0;
 function applyRemoteState(remote){
   if(!remote || remote._writerId === deviceId) return;
+  if(remote._updatedAt && remote._updatedAt < lastAppliedRemoteAt) return; // stale/out-of-order snapshot, ignore
+  if(remote._updatedAt) lastAppliedRemoteAt = remote._updatedAt;
   remote = { ...remote, players: (remote.players||[]).map(p=>{
     if(p.profileId && !p.photo){
       const prof = profiles.find(x=>x.id===p.profileId);
@@ -560,19 +593,46 @@ function applyRemoteState(remote){
   })};
   state = remote;
   persistLocal();
+  prevStateSnapshot = null; // any local undo point is invalid now that state changed underneath us
   if(state.phase === "playing"){
     showScreen("game");
     renderGame();
     drawAllCanvases();
   } else if(state.phase === "setup"){
     showScreen("setup");
+    applyViewMode(); // clears a stuck Poker View overlay if this device was showing the table
   }
 }
 async function initCloudGameSync(){
   const cloud = await waitForCloud(4000);
   if(!cloud.enabled) return;
   cloud.watchGame(applyRemoteState);
+
+  // Browsers throttle (and eventually fully freeze) realtime listeners in
+  // background/unfocused tabs, which can leave a Poker View window stuck behind.
+  // A periodic fetch plus an immediate refresh on any "we're back" signal makes
+  // it self-heal as soon as the tab runs again, from whichever trigger fires first.
+  const resync = ()=> cloud.fetchGame().then(applyRemoteState).catch(()=>{});
+  setInterval(resync, 3000);
+  document.addEventListener("visibilitychange", ()=>{ if(!document.hidden) resync(); });
+  window.addEventListener("focus", resync);
+  window.addEventListener("pageshow", resync);
+  window.addEventListener("online", resync);
 }
+
+// Keep the screen awake while showing the table so a Poker View display never
+// dims/sleeps mid-game (and staying "in use" also helps avoid background throttling).
+let wakeLock = null;
+async function requestWakeLock(){
+  if(!("wakeLock" in navigator) || wakeLock) return;
+  try{ wakeLock = await navigator.wakeLock.request("screen"); wakeLock.addEventListener("release", ()=>{ wakeLock=null; }); }catch(e){}
+}
+function releaseWakeLock(){
+  if(wakeLock){ wakeLock.release().catch(()=>{}); wakeLock=null; }
+}
+document.addEventListener("visibilitychange", ()=>{
+  if(!document.hidden && (viewMode==="tv" || document.getElementById("tvOnlyScreen").classList.contains("active"))) requestWakeLock();
+});
 
 /* ---------------------------------------------------------------
    ROTATION LOGIC
@@ -728,9 +788,15 @@ function upsertLocalProfile(p){
   saveProfilesLocal();
 }
 
+function updateCloudNoteCount(){
+  const note = document.getElementById("cloudNote");
+  if(!note || !note.classList.contains("on")) return;
+  note.querySelector("span:last-child").textContent = `Cloud profiles connected — ${profiles.length} saved`;
+}
 function renderProfileGrid(){
   const host = document.getElementById("profileGridHost");
   host.innerHTML = "";
+  updateCloudNoteCount();
   const selectedIds = new Set(setupPlayers.filter(p=>p.profileId).map(p=>p.profileId));
   profiles.forEach(p=>{
     const chip = document.createElement("button");
@@ -782,7 +848,7 @@ function openProfileModal(opts){
   document.getElementById("profileSaveCheckbox").checked = true;
   document.getElementById("profileSaveRow").style.display = profileModalEditing ? "none" : "flex";
   document.getElementById("profileDeleteBtn").style.display = profileModalEditing ? "block" : "none";
-  document.getElementById("profileSaveBtn").textContent = profileModalEditing ? "Save changes" : (profileModalLateJoin ? "Add to table" : "Add to table");
+  document.getElementById("profileSaveBtn").textContent = profileModalEditing ? "Save changes" : "Add to table";
   document.querySelector("#profileModal h3").textContent = profileModalEditing ? "Edit profile" : (profileModalLateJoin ? "Add player joining now" : "New profile");
   profileModal.classList.add("active");
 }
@@ -847,6 +913,7 @@ document.getElementById("profileSaveBtn").addEventListener("click", ()=>{
 /* cloud sync (optional, degrades to local-only if not configured / offline) */
 function waitForCloud(timeoutMs){
   return new Promise(resolve=>{
+    if(window.pokerCloud && window.pokerCloud.ready){ resolve(window.pokerCloud); return; }
     const t0 = Date.now();
     const iv = setInterval(()=>{
       if((window.pokerCloud && window.pokerCloud.ready) || Date.now()-t0 > timeoutMs){
@@ -869,7 +936,7 @@ async function initCloudProfiles(){
     remote.forEach(p=> upsertLocalProfile(p));
     renderProfileGrid();
     note.classList.add("on");
-    note.querySelector("span:last-child").textContent = `Cloud profiles connected — ${profiles.length} saved`;
+    updateCloudNoteCount();
   }catch(e){
     note.classList.remove("on");
     note.querySelector("span:last-child").textContent = "Cloud profiles unreachable right now — using cached profiles";
@@ -948,13 +1015,14 @@ document.getElementById("setSpecialEnabled").addEventListener("change", e=>{
 
 document.getElementById("startGameBtn").addEventListener("click", ()=>{
   if(setupPlayers.length < 2){ alert("Add at least 2 players."); return; }
+  const buyinAmt = parseFloat(document.getElementById("setDefaultBuyin").value)||0;
   state.players = setupPlayers.map((p,i)=>({
     id: p.id, name: p.name, color: SEAT_COLORS[i%SEAT_COLORS.length],
     photo: p.photo||null, profileId: p.profileId||null,
-    buyIns:[state.defaultBuyin||parseFloat(document.getElementById("setDefaultBuyin").value)||0],
+    buyIns:[buyinAmt],
     active:true, joinedHand:1
   }));
-  state.defaultBuyin = parseFloat(document.getElementById("setDefaultBuyin").value)||0;
+  state.defaultBuyin = buyinAmt;
   state.smallBlind = parseFloat(document.getElementById("setSmallBlind").value)||0;
   state.bigBlind = parseFloat(document.getElementById("setBigBlind").value)||0;
   state.specialEnabled = document.getElementById("setSpecialEnabled").checked;
@@ -1019,6 +1087,7 @@ function renderGame(){
   });
 
   document.getElementById("nextHandBtn").disabled = activeIndices().length < 2;
+  document.getElementById("tvNextHandBtn").disabled = activeIndices().length < 2;
   document.getElementById("undoBtn").disabled = !prevStateSnapshot;
   applyViewMode();
 }
@@ -1126,8 +1195,8 @@ document.getElementById("settingsBtn").addEventListener("click", ()=>{
   document.getElementById("editBB").value = state.bigBlind;
   document.getElementById("editSpecialEnabled").checked = state.specialEnabled;
   renderEditVariantList();
-  setActiveSeg(viewMode);
   settingsModal.classList.add("active");
+  requestAnimationFrame(()=> setActiveSeg(viewMode));
 });
 document.getElementById("closeSettingsBtn").addEventListener("click", ()=>{
   state.smallBlind = parseFloat(document.getElementById("editSB").value)||0;
@@ -1167,6 +1236,8 @@ function startNewGame(){
   saveState();
   renderSetupPlayers();
   renderVariantList();
+  document.getElementById("tvOnlyScreen").classList.remove("active");
+  releaseWakeLock();
   showScreen("setup");
 }
 document.getElementById("resetGameBtn").addEventListener("click", ()=>{
@@ -1180,9 +1251,16 @@ document.getElementById("newGameFromEndBtn").addEventListener("click", ()=>{
 });
 
 function setActiveSeg(mode){
-  document.querySelectorAll("#viewModeSeg button").forEach(b=>{
+  const buttons = document.querySelectorAll("#viewModeSeg button");
+  buttons.forEach(b=>{
     b.classList.toggle("active", b.dataset.mode===mode);
   });
+  const active = document.querySelector("#viewModeSeg button.active");
+  const indicator = document.getElementById("segIndicator");
+  if(active && indicator){
+    indicator.style.width = active.offsetWidth + "px";
+    indicator.style.transform = `translateX(${active.offsetLeft - 3}px)`;
+  }
 }
 document.getElementById("viewModeSeg").addEventListener("click", e=>{
   const btn = e.target.closest("button"); if(!btn) return;
@@ -1323,6 +1401,7 @@ function getFeltNoisePattern(){
 function drawScene(canvas){
   const ctx = canvas.getContext("2d");
   const w = canvas.width, h = canvas.height;
+  const u = Math.min(w,h);
   const now = Date.now();
   ctx.clearRect(0,0,w,h);
 
@@ -1359,16 +1438,31 @@ function drawScene(canvas){
     ctx.fillText(`${mins}m elapsed`, w*0.97, h*0.065);
   }
 
-  // special banner row (fixed slot so table position never shifts)
+  // special banner row (fixed slot so table position never shifts) — a shimmering
+  // gradient bar matching the controller's .specialBanner pill
   if(isSpecialHandNow()){
+    const barW = Math.min(w*0.66, u*0.9), barH = h*0.075;
+    const barX = w/2-barW/2, barY = h*0.075;
     const pulse = 0.5+0.5*Math.sin(now/500);
     ctx.save();
+    ctx.shadowColor = `rgba(0,0,0,${0.35+pulse*0.15})`;
+    ctx.shadowBlur = h*0.02; ctx.shadowOffsetY = h*0.006;
+
+    const shift = ((now/2200) % 1) * barW;
+    const grad = ctx.createLinearGradient(barX-barW+shift, barY, barX+barW*2+shift, barY);
+    const stops = ["#5a2fae","#c0392b","#e0b13d","#5a2fae","#c0392b","#e0b13d"];
+    stops.forEach((c,i)=> grad.addColorStop(i/(stops.length-1), c));
+    roundRect(ctx, barX, barY, barW, barH, barH/2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.restore();
+
+    ctx.save();
     ctx.textAlign="center"; ctx.textBaseline="middle";
-    ctx.shadowColor = `rgba(224,177,61,${0.4+pulse*0.3})`;
-    ctx.shadowBlur = h*0.02;
-    ctx.fillStyle="#f2cf7a";
-    ctx.font=`800 ${h*0.032}px -apple-system,sans-serif`;
-    ctx.fillText(`🎉 SPECIAL HAND — ${state.currentOrbitSpecial.variant.toUpperCase()} 🎉`, w/2, h*0.11);
+    ctx.shadowColor="rgba(0,0,0,.45)"; ctx.shadowBlur=h*0.006;
+    ctx.fillStyle="#fff";
+    ctx.font=`800 ${h*0.028}px -apple-system,sans-serif`;
+    ctx.fillText(`🎉 SPECIAL HAND — ${state.currentOrbitSpecial.variant.toUpperCase()} 🎉`, w/2, barY+barH/2+1);
     ctx.restore();
   }
 
@@ -1378,7 +1472,6 @@ function drawScene(canvas){
   const cx = arenaLeft+arenaW/2, cy = arenaTop+arenaH/2;
   const rx = arenaW*0.30, ry = arenaH*0.25;
   const seatRx = arenaW*0.435, seatRy = arenaH*0.30;
-  const u = Math.min(w,h);
   const seatR = u*0.034;
 
   // wood rail (multi-layer for a rounded, lit-edge look)
@@ -1596,9 +1689,11 @@ function applyViewMode(){
     tvOnly.classList.add("active");
     tableCard.style.display = "none";
     requestAnimationFrame(()=>drawAllCanvases());
+    requestWakeLock();
     return;
   }
   tvOnly.classList.remove("active");
+  releaseWakeLock();
 
   if(effective === "controller"){
     tableCard.style.display = "none";
@@ -1634,15 +1729,17 @@ function playChime(){
    SCREEN NAV / INIT
 --------------------------------------------------------------- */
 function showScreen(name){
+  const target = document.getElementById("screen-"+name);
+  if(target.classList.contains("active")) return; // already showing — don't replay the entrance animation
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
-  document.getElementById("screen-"+name).classList.add("active");
+  target.classList.add("active");
 }
 
-window.addEventListener("resize", ()=> drawAllCanvases());
+window.addEventListener("resize", ()=>{ drawAllCanvases(); if(settingsModal.classList.contains("active")) setActiveSeg(viewMode); });
 setInterval(()=>{ if(state.phase==="playing") drawAllCanvases(); }, 200);
 
 document.getElementById("exitTvBtn").addEventListener("click", ()=>{
-  viewMode = "auto";
+  viewMode = "combined";
   localStorage.setItem("pokerTableMonitor.viewMode", viewMode);
   setActiveSeg(viewMode);
   applyViewMode();

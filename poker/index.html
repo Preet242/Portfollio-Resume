@@ -28,80 +28,88 @@
   html,body{
     margin:0;padding:0;height:100%;background:var(--bg);color:var(--ink);
     font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;
-    overscroll-behavior:none; user-select:none;
+    overscroll-behavior:none; user-select:none; -webkit-font-smoothing:antialiased;
   }
   #app{position:fixed;inset:0;display:flex;flex-direction:column;padding-top:var(--safe-top);padding-bottom:var(--safe-bottom);}
   .screen{flex:1;display:none;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch;}
   .screen.active{display:flex;}
   h1,h2,h3{margin:0 0 8px 0;font-weight:700;}
-  .topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px;background:var(--panel);border-bottom:1px solid #26362c;}
-  .topbar .brand{display:flex;align-items:center;gap:8px;font-weight:800;letter-spacing:.3px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px;
+    background:rgba(21,32,25,0.72);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);
+    border-bottom:1px solid rgba(255,255,255,0.08);position:sticky;top:0;z-index:10;
+  }
+  .topbar .brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:17px;letter-spacing:-.01em;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .topbar .brand .suit{color:var(--gold);flex-shrink:0;}
   .topbar > div{flex-shrink:0;}
-  .pill{display:inline-flex;align-items:center;gap:6px;background:var(--panel-2);border:1px solid #2c3f32;border-radius:999px;padding:6px 12px;font-size:13px;color:var(--ink-dim);}
-  .pill.on{background:#1f3a2a;color:var(--gold-soft);border-color:#3a5a42;}
+  .pill{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.07);border:none;border-radius:980px;padding:6px 12px;font-size:13px;font-weight:500;color:var(--ink-dim);}
+  .pill.on{background:rgba(224,177,61,0.16);color:var(--gold-soft);}
 
   .content{padding:16px;max-width:760px;width:100%;margin:0 auto;flex:1;}
-  .card{background:var(--panel);border:1px solid #26362c;border-radius:var(--radius);padding:18px;margin-bottom:14px;}
-  .card h3{color:var(--gold-soft);font-size:14px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;}
+  .card{background:var(--panel);border:1px solid rgba(255,255,255,0.06);border-radius:var(--radius);padding:16px;margin-bottom:20px;box-shadow:0 1px 0 rgba(255,255,255,0.03) inset, 0 8px 24px rgba(0,0,0,0.18);}
+  .card h3{color:var(--ink-dim);font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin:2px 4px 10px;}
 
   label{display:block;font-size:13px;color:var(--ink-dim);margin-bottom:6px;}
   input[type=text],input[type=number]{
-    width:100%;padding:12px 14px;border-radius:12px;border:1px solid #33473a;background:#0f1912;color:var(--ink);
-    font-size:16px;outline:none;
+    width:100%;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);background:rgba(0,0,0,0.22);color:var(--ink);
+    font-size:16px;outline:none;transition:border-color .15s ease;
   }
   input[type=text]:focus,input[type=number]:focus{border-color:var(--gold);}
   .row{display:flex;flex-wrap:wrap;gap:10px;}
   .row > *{flex:1 1 130px;}
 
-  button{font-family:inherit;cursor:pointer;border:none;border-radius:12px;padding:12px 16px;font-size:15px;font-weight:600;color:var(--ink);background:var(--panel-2);transition:transform .08s ease;}
-  button:active{transform:scale(.96);}
-  button.primary{background:linear-gradient(180deg,var(--gold-soft),var(--gold));color:#1a1206;}
+  button{font-family:inherit;-webkit-font-smoothing:antialiased;cursor:pointer;border:none;border-radius:12px;padding:12px 16px;font-size:15px;font-weight:600;color:var(--ink);background:rgba(255,255,255,0.08);transition:transform .08s ease, opacity .08s ease;}
+  button:active{transform:scale(.96);opacity:.85;}
+  button.primary{background:linear-gradient(180deg,var(--gold-soft),var(--gold));color:#241a08;box-shadow:0 1px 0 rgba(255,255,255,0.35) inset, 0 4px 14px rgba(224,177,61,0.25);}
   button.ok{background:var(--ok);color:#06210f;}
-  button.danger{background:transparent;border:1px solid var(--danger);color:#ff8b7a;}
-  button.ghost{background:transparent;border:1px solid #33473a;color:var(--ink-dim);}
-  button.big{width:100%;padding:20px;font-size:19px;border-radius:16px;}
-  button.icon{padding:8px 10px;font-size:14px;}
+  button.danger{background:rgba(176,57,46,0.18);color:#ff9686;}
+  button.ghost{background:rgba(255,255,255,0.07);color:var(--ink-dim);}
+  button.big{width:100%;padding:17px;font-size:17px;font-weight:600;border-radius:14px;}
+  button.icon{padding:9px 12px;font-size:14px;background:rgba(255,255,255,0.07);}
   button:disabled{opacity:.4;cursor:not-allowed;}
 
-  .playerRow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:var(--panel-2);border-radius:12px;padding:10px 12px;margin-bottom:8px;}
+  .playerRow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:11px 4px;border-bottom:1px solid rgba(255,255,255,0.07);min-height:44px;}
+  .playerRow:last-child{border-bottom:none;}
   .playerRow .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
-  .playerRow .name{flex:1 1 120px;min-width:0;font-weight:600;font-size:15px;overflow:hidden;text-overflow:ellipsis;}
+  .playerRow .name{flex:1 1 120px;min-width:0;font-weight:590;font-size:15px;overflow:hidden;text-overflow:ellipsis;}
   .playerRow .name small{display:block;font-weight:400;color:var(--ink-dim);font-size:12px;}
   .playerRow .stack{display:flex;flex-wrap:wrap;gap:6px;flex:0 1 auto;margin-left:auto;justify-content:flex-end;}
-  .playerRow.sitout{opacity:.45;}
+  .playerRow.sitout{opacity:.4;}
 
-  .badge{display:inline-block;font-size:11px;font-weight:800;padding:2px 7px;border-radius:6px;margin-left:6px;letter-spacing:.03em;}
-  .badge.d{background:#e8e8e8;color:#111;}
-  .badge.sb{background:#2e6fb0;color:#fff;}
-  .badge.bb{background:#c0392b;color:#fff;}
+  .badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px;margin-left:6px;letter-spacing:.02em;}
+  .badge.d{background:rgba(255,255,255,0.85);color:#111;}
+  .badge.sb{background:var(--blue);color:#fff;}
+  .badge.bb{background:var(--red);color:#fff;}
 
-  .specialBanner{background:linear-gradient(90deg,#5a2fae,#c0392b,#e0b13d);background-size:300% 100%;animation:shimmer 3s linear infinite;border-radius:14px;padding:12px 16px;text-align:center;font-weight:800;font-size:15px;margin-bottom:14px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.4);}
+  .specialBanner{background:linear-gradient(90deg,#5a2fae,#c0392b,#e0b13d);background-size:300% 100%;animation:shimmer 3s linear infinite;border-radius:14px;padding:12px 16px;text-align:center;font-weight:700;font-size:15px;margin-bottom:14px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.4);}
   @keyframes shimmer{0%{background-position:0% 0}100%{background-position:300% 0}}
 
-  .bigNext{position:sticky;bottom:0;padding:14px 16px calc(14px + var(--safe-bottom));background:linear-gradient(0deg,var(--bg) 60%,transparent);}
+  .bigNext{position:sticky;bottom:0;padding:14px 16px calc(14px + var(--safe-bottom));background:linear-gradient(0deg,var(--bg) 65%,transparent);}
 
-  .modalOverlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-end;justify-content:center;z-index:50;}
+  .modalOverlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center;z-index:50;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);}
   .modalOverlay.active{display:flex;}
-  .modal{background:var(--panel);border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:520px;max-height:85vh;overflow-y:auto;padding-bottom:calc(20px + var(--safe-bottom));}
-  .modal h3{color:var(--gold-soft);}
+  .modal{
+    background:rgba(24,36,29,0.92);-webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%);
+    border:1px solid rgba(255,255,255,0.08);border-bottom:none;
+    border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:520px;max-height:85vh;overflow-y:auto;padding-bottom:calc(20px + var(--safe-bottom));
+  }
+  .modal h3{color:var(--ink);font-size:17px;font-weight:700;}
   .closeRow{display:flex;flex-wrap:wrap;justify-content:flex-end;margin-top:14px;gap:10px;}
 
-  .chip{display:inline-flex;align-items:center;justify-content:center;padding:10px 4px;border-radius:10px;background:#233527;font-weight:700;font-size:14px;}
+  .chip{display:inline-flex;align-items:center;justify-content:center;padding:10px 4px;border-radius:10px;background:rgba(255,255,255,0.08);font-weight:600;font-size:14px;}
 
-  .segmented{display:flex;background:var(--panel-2);border-radius:12px;padding:4px;gap:4px;}
-  .segmented button{flex:1;background:transparent;padding:8px;font-size:13px;}
-  .segmented button.active{background:var(--gold);color:#1a1206;}
+  .segmented{display:flex;background:rgba(0,0,0,0.25);border-radius:11px;padding:3px;gap:2px;}
+  .segmented button{flex:1;background:transparent;padding:8px;font-size:13px;font-weight:600;border-radius:9px;transition:background .15s ease,color .15s ease;}
+  .segmented button.active{background:var(--gold);color:#241a08;}
 
-  .tvPreviewWrap{width:100%;aspect-ratio:16/9;background:#000;border-radius:16px;overflow:hidden;margin-bottom:14px;border:1px solid #26362c;}
+  .tvPreviewWrap{width:100%;aspect-ratio:16/9;background:#000;border-radius:16px;overflow:hidden;margin-bottom:14px;border:1px solid rgba(255,255,255,0.08);}
   .tvPreviewWrap canvas{width:100%;height:100%;display:block;}
 
   #tvOnlyScreen{position:fixed;inset:0;background:#000;display:none;align-items:center;justify-content:center;z-index:5;}
   #tvOnlyScreen.active{display:flex;}
   #tvOnlyScreen canvas{width:100%;height:100%;}
 
-  .airplayBtn{display:flex;align-items:center;gap:8px;}
-  .settleRow{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #26362c;font-size:15px;}
+  .settleRow{display:flex;justify-content:space-between;align-items:center;padding:11px 4px;border-bottom:1px solid rgba(255,255,255,0.07);font-size:15px;}
   .settleRow:last-child{border-bottom:none;}
   .settleRow .amt{font-weight:800;color:var(--gold-soft);}
   .netpos{color:#7be0a0;}
@@ -171,7 +179,7 @@
         </div>
         <div class="welcomeStep">
           <div class="num">4</div>
-          <div><h4>Put it on the TV</h4><p>On your iPad, tap 📺 TV and AirPlay to your Mac (connected to the TV via HDMI) — the TV shows the clean table, your iPad switches to controls only. If that doesn't behave right, open Settings → Display Mode and pick a mode manually. "Force TV" fullscreens the table on whatever device you're on — tap the ✕ in the corner to get back out.</p></div>
+          <div><h4>Put it on the TV</h4><p>Open this same page on the laptop connected to your TV, and set its Display Mode (Settings) to "Poker View" — it fullscreens the clean table. Open the page again on your phone or tablet and use it normally as the controller. Both stay in sync automatically over the internet — no cables between them needed. On the TV device, tap ✕ in the corner to get back out of Poker View if you need to.</p></div>
         </div>
         <div class="welcomeStep">
           <div class="num">5</div>
@@ -250,14 +258,12 @@
       <div class="brand"><span class="suit">♠</span> <span id="handLabel">Hand 1</span></div>
       <div style="display:flex;gap:8px;align-items:center;">
         <button class="icon ghost" id="settingsBtn">⚙️</button>
-        <button class="icon ghost" id="airplayBtn">📺 TV</button>
       </div>
     </div>
 
     <div class="content">
       <div id="modeRow" class="row" style="margin-bottom:10px;">
         <div class="pill" id="orbitPill">Orbit 1</div>
-        <div class="pill" id="airplayStatusPill">TV not connected</div>
         <div class="pill" id="moneyPill">$0 in play</div>
       </div>
 
@@ -344,12 +350,11 @@
 
     <h3 style="margin-top:18px;">Display mode (this device)</h3>
     <div class="segmented" id="viewModeSeg">
-      <button data-mode="auto" class="active">Auto</button>
-      <button data-mode="controller">Controller only</button>
-      <button data-mode="combined">Combined</button>
-      <button data-mode="tv">Force TV</button>
+      <button data-mode="controller">Controller</button>
+      <button data-mode="combined" class="active">Both</button>
+      <button data-mode="tv">Poker View</button>
     </div>
-    <p class="smallnote">Auto: shows the clean table on the TV automatically when AirPlaying to your Mac, and just controls on the iPad. If AirPlay detection doesn't behave right on your setup, pick a mode manually.</p>
+    <p class="smallnote">On the device connected to your TV, pick "Poker View" — a clean full-screen table, live-synced with whatever the controller device does. On your phone, use "Controller" (just the buttons) or "Both" (table + controls together) to run the game.</p>
 
     <div class="closeRow">
       <button class="danger" id="resetGameBtn">Reset entire game</button>
@@ -408,8 +413,6 @@
   </div>
 </div>
 
-<video id="airplayVideo" playsinline webkit-playsinline muted style="display:none;width:1px;height:1px;"></video>
-
 <!--
   OPTIONAL: shared cloud profiles (name + photo synced across every device/friend).
   Leave firebaseConfig.apiKey as "YOUR_API_KEY" to run in local-only mode (each
@@ -435,7 +438,7 @@
   if(firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY"){
     try{
       const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
-      const { getFirestore, collection, getDocs, doc, setDoc, deleteDoc } =
+      const { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, onSnapshot } =
         await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
       const app = initializeApp(firebaseConfig);
       const db = getFirestore(app);
@@ -454,6 +457,14 @@
         },
         async deleteProfile(id){
           await deleteDoc(doc(db, "profiles", id));
+        },
+        async pushGame(gameState){
+          await setDoc(doc(db, "games", "active"), gameState);
+        },
+        watchGame(callback){
+          return onSnapshot(doc(db, "games", "active"), snap=>{
+            callback(snap.exists() ? snap.data() : null);
+          });
         }
       };
     }catch(e){
@@ -477,9 +488,7 @@ const SEAT_COLORS = ["#e0b13d","#2e6fb0","#c0392b","#3fae6a","#9b59b6","#e67e22"
 
 let state = null;
 let prevStateSnapshot = null; // for undo
-let viewMode = localStorage.getItem("pokerTableMonitor.viewMode") || "auto";
-let isAirPlaying = false;
-let airplayAvailable = false;
+let viewMode = localStorage.getItem("pokerTableMonitor.viewMode") || "combined";
 
 function defaultState(){
   return {
@@ -510,12 +519,60 @@ function loadState(){
   }catch(e){}
   return defaultState();
 }
-function saveState(){
+function uid(){ return Math.random().toString(36).slice(2,9); }
+
+let deviceId = localStorage.getItem("pokerTableMonitor.deviceId");
+if(!deviceId){ deviceId = uid(); localStorage.setItem("pokerTableMonitor.deviceId", deviceId); }
+
+function persistLocal(){
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+function saveState(){
+  persistLocal();
+  cloudPushGameState();
 }
 state = loadState();
 
-function uid(){ return Math.random().toString(36).slice(2,9); }
+/* live cross-device game sync (optional — only active when cloud is configured).
+   Whichever device presses buttons pushes state; every device (including
+   pure "Force TV" displays) listens and mirrors it live. No AirPlay needed. */
+let cloudPushTimer = null;
+function cloudPushGameState(){
+  clearTimeout(cloudPushTimer);
+  cloudPushTimer = setTimeout(()=>{
+    waitForCloud(2000).then(cloud=>{
+      if(!cloud.enabled) return;
+      // strip photos that are already synced via the profiles collection, to keep the doc small
+      const slimPlayers = state.players.map(p=> p.profileId ? {...p, photo:null} : p);
+      cloud.pushGame({ ...state, players: slimPlayers, _writerId: deviceId, _updatedAt: Date.now() })
+        .catch(e=> console.warn("Cloud game sync failed", e));
+    });
+  }, 250);
+}
+function applyRemoteState(remote){
+  if(!remote || remote._writerId === deviceId) return;
+  remote = { ...remote, players: (remote.players||[]).map(p=>{
+    if(p.profileId && !p.photo){
+      const prof = profiles.find(x=>x.id===p.profileId);
+      if(prof && prof.photo) return {...p, photo: prof.photo};
+    }
+    return p;
+  })};
+  state = remote;
+  persistLocal();
+  if(state.phase === "playing"){
+    showScreen("game");
+    renderGame();
+    drawAllCanvases();
+  } else if(state.phase === "setup"){
+    showScreen("setup");
+  }
+}
+async function initCloudGameSync(){
+  const cloud = await waitForCloud(4000);
+  if(!cloud.enabled) return;
+  cloud.watchGame(applyRemoteState);
+}
 
 /* ---------------------------------------------------------------
    ROTATION LOGIC
@@ -963,7 +1020,6 @@ function renderGame(){
 
   document.getElementById("nextHandBtn").disabled = activeIndices().length < 2;
   document.getElementById("undoBtn").disabled = !prevStateSnapshot;
-  updateAirplayStatusUI();
   applyViewMode();
 }
 
@@ -1194,7 +1250,7 @@ document.getElementById("calcSettleBtn").addEventListener("click", ()=>{
     host.appendChild(row);
   });
   const divider = document.createElement("div");
-  divider.style.cssText="height:1px;background:#26362c;margin:10px 0;";
+  divider.style.cssText="height:1px;background:rgba(255,255,255,0.08);margin:10px 0;";
   host.appendChild(divider);
   if(txns.length===0){
     host.innerHTML += `<p class="smallnote">Everyone's even — nobody owes anybody.</p>`;
@@ -1225,7 +1281,7 @@ function computeSettlement(rows){
 }
 
 /* ---------------------------------------------------------------
-   CANVAS RENDERING (shared by TV preview, TV-only overlay, AirPlay feed)
+   CANVAS RENDERING (shared by the in-controller table preview and Poker View)
 --------------------------------------------------------------- */
 const imageCache = new Map();
 function getLoadedImage(dataUrl){
@@ -1508,8 +1564,6 @@ function roundRect(ctx,x,y,w,h,r){
 
 const previewCanvas = document.getElementById("previewCanvas");
 const tvOnlyCanvas = document.getElementById("tvOnlyCanvas");
-const airplayCanvas = document.createElement("canvas");
-airplayCanvas.width = 1920; airplayCanvas.height = 1080;
 
 function sizeCanvasToCSS(canvas){
   const rect = canvas.getBoundingClientRect();
@@ -1523,50 +1577,6 @@ function drawAllCanvases(){
   if(state.phase !== "playing") return;
   if(previewCanvas.offsetParent){ sizeCanvasToCSS(previewCanvas); drawScene(previewCanvas); }
   if(tvOnlyCanvas.offsetParent){ sizeCanvasToCSS(tvOnlyCanvas); drawScene(tvOnlyCanvas); }
-  drawScene(airplayCanvas);
-  if(airplayTrack) try{ airplayTrack.requestFrame(); }catch(e){}
-}
-
-/* ---------------------------------------------------------------
-   AIRPLAY WIRING
---------------------------------------------------------------- */
-const airplayVideo = document.getElementById("airplayVideo");
-let airplayTrack = null;
-
-function initAirplay(){
-  if(!airplayCanvas.captureStream){ return; }
-  try{
-    const stream = airplayCanvas.captureStream(0);
-    airplayTrack = stream.getVideoTracks()[0];
-    airplayVideo.srcObject = stream;
-    airplayVideo.muted = true;
-    airplayVideo.play().catch(()=>{});
-  }catch(e){ console.warn("captureStream unsupported", e); }
-
-  if('webkitPlaybackTargetAvailabilityChangedEvent' in window || airplayVideo.webkitShowPlaybackTargetPicker){
-    airplayVideo.addEventListener('webkitplaybacktargetavailabilitychanged', (e)=>{
-      airplayAvailable = e.availability === 'available';
-      updateAirplayStatusUI();
-    });
-    airplayVideo.addEventListener('webkitcurrentplaybacktargetiswirelesschanged', ()=>{
-      isAirPlaying = !!airplayVideo.webkitCurrentPlaybackTargetIsWireless;
-      updateAirplayStatusUI();
-      applyViewMode();
-    });
-  }
-}
-document.getElementById("airplayBtn").addEventListener("click", ()=>{
-  if(airplayVideo.webkitShowPlaybackTargetPicker){
-    airplayVideo.webkitShowPlaybackTargetPicker();
-  } else {
-    alert("AirPlay picker isn't available in this browser. Use Control Center to mirror this iPad to your Mac, or pick a Display Mode manually in Settings.");
-  }
-});
-function updateAirplayStatusUI(){
-  const pill = document.getElementById("airplayStatusPill");
-  if(!pill) return;
-  pill.classList.toggle("on", isAirPlaying);
-  pill.textContent = isAirPlaying ? "📺 TV connected" : (airplayAvailable ? "TV available" : "TV not connected");
 }
 
 /* ---------------------------------------------------------------
@@ -1577,8 +1587,7 @@ function applyViewMode(){
     document.getElementById("tvOnlyScreen").classList.remove("active");
     return;
   }
-  let effective = viewMode;
-  if(viewMode === "auto") effective = isAirPlaying ? "controller" : "combined";
+  const effective = viewMode;
 
   const tableCard = document.getElementById("tablePreviewCard");
   const tvOnly = document.getElementById("tvOnlyScreen");
@@ -1649,8 +1658,8 @@ function init(){
   renderSetupPlayers();
   renderVariantList();
   document.getElementById("setSpecialEnabled").checked = state.specialEnabled;
-  initAirplay();
   initCloudProfiles();
+  initCloudGameSync();
 
   if(state.phase === "playing"){
     showScreen("game");

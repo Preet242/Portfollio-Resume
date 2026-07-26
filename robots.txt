@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://preetp.me/sitemap.xml
+Sitemap: https://preetp.com/sitemap.xml

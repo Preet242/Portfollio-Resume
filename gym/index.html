@@ -1,0 +1,1659 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Workout Guide</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0B0B0F">
+<meta name="description" content="A no-account, no-tracking reference guide for a 5-day bro split. Pick a day, swipe exercise variations, lift.">
+<style>
+/* ---------- Reset ---------- */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;}
+html,body{height:100%;}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
+body{
+  overscroll-behavior-y:none;
+  touch-action:pan-y;
+}
+img,svg{display:block;max-width:100%;}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;}
+a{color:inherit;}
+ol,ul{list-style:none;}
+input,button{-webkit-appearance:none;appearance:none;}
+
+/* ---------- Design tokens ---------- */
+:root{
+  color-scheme:light;
+  --bg:#F2F2F7;
+  --bg-elevated:#FFFFFF;
+  --card:#FFFFFF;
+  --card-2:#F7F7FA;
+  --text:#1C1C1E;
+  --text-2:#6E6E73;
+  --text-3:#9A9AA0;
+  --border:rgba(60,60,67,0.13);
+  --shadow:0 1px 2px rgba(0,0,0,0.04),0 8px 24px rgba(0,0,0,0.07);
+  --shadow-lg:0 12px 40px rgba(0,0,0,0.16);
+  --accent:#FF3B30;
+  --accent-2:#0A84FF;
+  --pill-bg:rgba(120,120,128,0.12);
+  --overlay:rgba(0,0,0,0.35);
+  --sheet-bg:#FFFFFF;
+  --body-fill:#D4D4DA;
+  --success:#30D158;
+  --gutter:20px;
+  --day-a:#0A84FF;
+  --day-b:#5AC8FA;
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+}
+html.dark{
+  color-scheme:dark;
+  --bg:#000000;
+  --bg-elevated:#111113;
+  --card:#1C1C1E;
+  --card-2:#242426;
+  --text:#F5F5F7;
+  --text-2:#98989D;
+  --text-3:#6E6E73;
+  --border:rgba(255,255,255,0.11);
+  --shadow:0 1px 2px rgba(0,0,0,0.3),0 8px 28px rgba(0,0,0,0.5);
+  --shadow-lg:0 16px 48px rgba(0,0,0,0.6);
+  --pill-bg:rgba(120,120,128,0.24);
+  --overlay:rgba(0,0,0,0.6);
+  --sheet-bg:#1C1C1E;
+  --body-fill:#3A3A3C;
+}
+
+body{
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
+  min-height:100%;
+  transition:background .3s ease,color .3s ease;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ---------- App shell ---------- */
+#app{
+  min-height:100vh;
+  min-height:100dvh;
+  padding-bottom:calc(env(safe-area-inset-bottom) + 24px);
+  position:relative;
+}
+
+/* ---------- Desktop / wide-viewport presentation ----------
+   Below ~680px this file behaves exactly like the mobile app.
+   Above it, the app renders inside a floating "device" frame on
+   an ambient wallpaper so it looks intentional on a laptop/desktop
+   screen instead of a stretched-out phone layout. */
+@media (min-width:680px){
+  html,body{height:auto;min-height:100vh;}
+  body{
+    display:flex;justify-content:center;align-items:flex-start;
+    padding:52px 24px;
+    background:
+      radial-gradient(760px circle at 12% 8%, rgba(255,69,58,.16), transparent 60%),
+      radial-gradient(760px circle at 88% 12%, rgba(10,132,255,.16), transparent 60%),
+      radial-gradient(820px circle at 50% 100%, rgba(168,85,247,.14), transparent 60%),
+      var(--bg);
+  }
+  html.dark body{
+    background:
+      radial-gradient(760px circle at 12% 8%, rgba(255,69,58,.14), transparent 60%),
+      radial-gradient(760px circle at 88% 12%, rgba(10,132,255,.16), transparent 60%),
+      radial-gradient(820px circle at 50% 100%, rgba(168,85,247,.16), transparent 60%),
+      var(--bg);
+  }
+  #app{
+    width:430px;flex:none;
+    height:min(920px, calc(100vh - 104px));
+    min-height:0;
+    margin:0;border-radius:44px;
+    overflow-x:hidden;overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    box-shadow:var(--shadow-lg);
+    border:1px solid var(--border);
+    transform:translateZ(0); /* containing block for the fixed-position sheet */
+  }
+}
+.view{display:none;}
+.view.active{display:block;animation:fadeIn .28s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+/* ---------- Topbar ---------- */
+#topbar{
+  position:sticky;top:0;z-index:20;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:calc(env(safe-area-inset-top) + 10px) 12px 10px;
+  background:color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter:blur(20px) saturate(180%);
+  -webkit-backdrop-filter:blur(20px) saturate(180%);
+  border-bottom:1px solid transparent;
+}
+#topbar.scrolled{border-bottom-color:var(--border);}
+.topbar-btn{
+  display:flex;align-items:center;gap:4px;
+  min-height:44px;padding:0 10px;border-radius:14px;
+  font-size:17px;font-weight:590;color:var(--accent-2);
+}
+.topbar-btn:active{opacity:.5;}
+.topbar-btn svg{width:12px;height:20px;fill:var(--accent-2);}
+.topbar-title{font-size:17px;font-weight:650;letter-spacing:-.2px;}
+.icon-btn{
+  width:40px;height:40px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--pill-bg);
+  font-size:18px;
+}
+.icon-btn:active{transform:scale(.9);}
+
+/* ---------- Home ---------- */
+.home-header{padding:18px var(--gutter) 6px;}
+.home-header h1{font-size:34px;font-weight:750;letter-spacing:-.6px;}
+.home-header p{color:var(--text-2);font-size:15px;margin-top:4px;font-weight:450;}
+.day-grid{
+  padding:16px var(--gutter) 8px;
+  display:grid;grid-template-columns:1fr;gap:14px;
+}
+.day-card{
+  position:relative;overflow:hidden;
+  border-radius:26px;padding:24px 22px;
+  min-height:140px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  color:#fff;
+  box-shadow:0 1px 1px rgba(0,0,0,.05), 0 14px 30px -8px rgba(0,0,0,.28);
+  transform:translateZ(0);
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+.day-card:active{transform:scale(.97);}
+.day-card .top{position:relative;z-index:2;display:flex;align-items:flex-start;justify-content:space-between;}
+.day-card h2{font-size:25px;font-weight:750;letter-spacing:-.4px;text-shadow:0 1px 6px rgba(0,0,0,.15);}
+.day-card .meta{font-size:13px;opacity:.92;font-weight:560;margin-top:3px;max-width:75%;line-height:1.4;}
+.day-card .badge{
+  position:relative;flex:none;
+  width:52px;height:52px;border-radius:16px;
+  background:rgba(255,255,255,.22);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.5), inset 0 -1px 2px rgba(0,0,0,.08);
+  display:flex;align-items:center;justify-content:center;
+}
+.day-card .badge svg{width:27px;height:27px;fill:#fff;filter:drop-shadow(0 1px 2px rgba(0,0,0,.18));}
+.day-card .chev{position:relative;z-index:2;display:flex;align-items:center;gap:4px;font-size:14px;font-weight:650;opacity:.97;align-self:flex-start;}
+.day-card .sheen{
+  position:absolute;inset:0;z-index:1;
+  background:radial-gradient(130% 100% at 12% -15%, rgba(255,255,255,.4), transparent 55%);
+  pointer-events:none;
+}
+.day-card .watermark{
+  position:absolute;right:-22px;bottom:-26px;z-index:0;
+  width:130px;height:130px;opacity:.16;
+  transform:rotate(-10deg);
+  pointer-events:none;
+}
+.day-card .watermark svg{width:100%;height:100%;fill:#fff;}
+.day-card.chest{background:linear-gradient(135deg,#FF6B5E 0%,#FF3B30 55%,#E0263B 100%);}
+.day-card.back{background:linear-gradient(135deg,#3DDC97 0%,#1DB876 55%,#0E8F6A 100%);}
+.day-card.legs{background:linear-gradient(135deg,#5AA7FF 0%,#3B7CFF 55%,#3B5FE0 100%);}
+.day-card.shoulders{background:linear-gradient(135deg,#C084FC 0%,#A855F7 55%,#8B33E8 100%);}
+.day-card.arms{background:linear-gradient(135deg,#FFB84D 0%,#FF9500 55%,#E67E00 100%);}
+@media (hover:hover) and (pointer:fine){
+  .day-card{cursor:pointer;}
+  .day-card:hover{transform:translateY(-2px);box-shadow:0 1px 1px rgba(0,0,0,.05), 0 20px 38px -10px rgba(0,0,0,.34);}
+}
+
+.home-footnote{padding:18px var(--gutter) 8px;color:var(--text-3);font-size:12.5px;line-height:1.5;text-align:center;}
+
+/* ---------- Day view ---------- */
+.day-hero{padding:6px var(--gutter) 4px;}
+.day-hero h1{font-size:30px;font-weight:750;letter-spacing:-.5px;}
+.day-hero p{color:var(--text-2);font-size:14.5px;margin-top:3px;}
+
+.slot{padding:18px var(--gutter) 4px;}
+.slot-head{display:flex;align-items:baseline;gap:8px;padding:0 0 10px;}
+.slot-num{
+  width:24px;height:24px;border-radius:8px;
+  background:color-mix(in srgb, var(--day-a) 15%, transparent);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12.5px;font-weight:700;color:var(--day-a);flex:none;
+}
+.slot-head h3{font-size:19px;font-weight:680;letter-spacing:-.3px;}
+.slot-head .swipe-hint{margin-left:auto;font-size:11.5px;color:var(--text-3);font-weight:560;display:flex;align-items:center;gap:3px;}
+
+.carousel-wrap{position:relative;}
+.carousel{
+  display:flex;gap:12px;overflow-x:auto;
+  scroll-snap-type:x mandatory;
+  padding:4px 0 8px;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+}
+.carousel::-webkit-scrollbar{display:none;}
+.carousel .spacer{flex:none;width:1px;}
+.ex-card{
+  flex:0 0 84%;
+  scroll-snap-align:center;
+  background:var(--card);
+  border-radius:20px;
+  box-shadow:var(--shadow);
+  display:flex;flex-direction:column;
+  min-height:150px;
+  overflow:hidden;
+  transition:transform .12s ease;
+}
+.ex-card:active{transform:scale(.98);}
+.ex-photo{width:100%;height:120px;flex:none;background:var(--card-2);overflow:hidden;}
+.ex-photo img{width:100%;height:100%;object-fit:cover;display:block;}
+.ex-card-body{padding:16px;display:flex;flex-direction:column;gap:10px;flex:1;}
+.ex-card .row1{display:flex;align-items:center;gap:12px;}
+.ex-thumb{
+  width:56px;height:56px;border-radius:16px;flex:none;
+  background:color-mix(in srgb, var(--day-a) 15%, var(--card-2));
+  display:flex;align-items:center;justify-content:center;
+}
+.ex-thumb svg{width:30px;height:30px;fill:var(--day-a);}
+.ex-card .name-wrap{min-width:0;flex:1;}
+.ex-card h4{font-size:17px;font-weight:650;letter-spacing:-.2px;line-height:1.2;}
+.ex-card .equip{font-size:12.5px;color:var(--text-2);font-weight:560;margin-top:2px;}
+.ex-card .stats{
+  display:flex;gap:8px;flex-wrap:wrap;
+}
+.pill{
+  background:var(--pill-bg);
+  padding:5px 10px;border-radius:10px;
+  font-size:12.5px;font-weight:620;color:var(--text-2);
+}
+.ex-card .tap-row{
+  margin-top:auto;display:flex;align-items:center;justify-content:space-between;
+  padding-top:6px;border-top:1px solid var(--border);
+}
+.ex-card .tap-row span{font-size:13px;color:var(--day-a);font-weight:600;}
+.ex-card .tap-row svg{width:8px;height:14px;fill:var(--day-a);}
+
+.dots{display:flex;gap:6px;justify-content:center;padding:10px 0 2px;}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--text-3);opacity:.4;transition:all .2s ease;}
+.dot.active{opacity:1;background:var(--day-a);width:16px;border-radius:3px;}
+
+/* Desktop-only prev/next affordance for mouse users (touch devices keep swipe-only) */
+.car-nav{
+  display:none;
+  position:absolute;top:50%;transform:translateY(-50%);
+  width:34px;height:34px;border-radius:50%;
+  background:var(--card);color:var(--day-a);
+  align-items:center;justify-content:center;
+  box-shadow:var(--shadow-lg);
+  opacity:0;transition:opacity .15s ease;
+  z-index:3;
+}
+.car-nav svg{width:9px;height:15px;fill:currentColor;}
+.car-nav.prev{left:-4px;}
+.car-nav.next{right:-4px;}
+@media (hover:hover) and (pointer:fine){
+  .car-nav{display:flex;}
+  .carousel-wrap:hover .car-nav{opacity:1;}
+}
+
+/* ---------- Recap ---------- */
+.recap{margin:22px var(--gutter) 0;background:var(--card);border-radius:20px;padding:18px 18px 6px;box-shadow:var(--shadow);}
+.recap h3{font-size:17px;font-weight:680;margin-bottom:10px;}
+.recap ol{counter-reset:step;}
+.recap li{
+  counter-increment:step;
+  display:flex;align-items:center;gap:10px;
+  padding:11px 2px;border-bottom:1px solid var(--border);
+  font-size:15px;font-weight:520;
+}
+.recap li:last-child{border-bottom:none;}
+.recap li::before{
+  content:counter(step);
+  width:22px;height:22px;border-radius:50%;
+  background:color-mix(in srgb, var(--day-a) 15%, transparent);color:var(--day-a);
+  font-size:11.5px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;flex:none;
+}
+.recap .note{color:var(--text-3);font-size:12px;padding:10px 2px 14px;line-height:1.5;}
+
+/* ---------- Sheet (bottom sheet modal) ---------- */
+#sheet-overlay{
+  position:fixed;inset:0;z-index:50;
+  background:var(--overlay);
+  opacity:0;pointer-events:none;
+  transition:opacity .25s ease;
+}
+#sheet-overlay.open{opacity:1;pointer-events:auto;}
+#sheet{
+  position:fixed;left:0;right:0;bottom:0;z-index:51;
+  max-height:92vh;max-height:92dvh;
+  background:var(--sheet-bg);
+  border-radius:26px 26px 0 0;
+  box-shadow:var(--shadow-lg);
+  transform:translateY(100%);
+  transition:transform .32s cubic-bezier(.32,.72,0,1);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+  overscroll-behavior:contain;
+}
+#sheet.open{transform:translateY(0);}
+#sheet.dragging{transition:none;}
+.sheet-handle-area{
+  flex:none;position:relative;height:52px;
+  display:flex;align-items:center;justify-content:center;
+  touch-action:none;
+}
+.sheet-handle{width:36px;height:5px;border-radius:3px;background:var(--text-3);opacity:.45;}
+.sheet-close{
+  position:absolute;top:50%;right:12px;transform:translateY(-50%);z-index:10;
+  width:36px;height:36px;border-radius:50%;
+  background:var(--pill-bg);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;color:var(--text-2);font-weight:700;
+}
+.sheet-close:active{background:color-mix(in srgb, var(--text-2) 25%, var(--pill-bg));}
+.sheet-scroll{
+  flex:1 1 auto;min-height:0;
+  overflow-y:auto;padding:6px 22px calc(env(safe-area-inset-bottom) + 28px);
+  -webkit-overflow-scrolling:touch;
+}
+.sheet-photo{
+  position:relative;
+  width:calc(100% + 44px);margin:-6px -22px 14px;
+  height:200px;background:var(--card-2);overflow:hidden;
+}
+.sheet-photo img{width:100%;height:100%;object-fit:cover;display:block;}
+.sheet-photo-badge{
+  position:absolute;right:14px;bottom:-22px;
+  width:60px;height:60px;border-radius:16px;
+  background:var(--sheet-bg);box-shadow:var(--shadow-lg);
+  display:flex;align-items:center;justify-content:center;overflow:hidden;
+}
+.sheet-photo-badge svg.body{width:32px;height:56px;fill:var(--body-fill);}
+.sheet-visual{
+  display:flex;align-items:center;gap:16px;
+  padding:8px 4px 18px;
+}
+.body-diagram{
+  position:relative;flex:none;width:96px;height:150px;
+  background:var(--card-2);border-radius:18px;
+  display:flex;align-items:center;justify-content:center;
+}
+.body-diagram svg.body{width:60px;height:110px;fill:var(--body-fill);}
+.muscle-glow{
+  position:absolute;border-radius:50%;
+  background:radial-gradient(circle, color-mix(in srgb, var(--day-a) 85%, transparent) 0%, transparent 72%);
+  animation:pulse 1.8s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:.55;}50%{opacity:1;}}
+.sheet-title-block{flex:1;min-width:0;}
+.sheet-title-block h2{font-size:23px;font-weight:750;letter-spacing:-.4px;line-height:1.15;}
+.sheet-equip-row{display:flex;align-items:center;gap:6px;margin-top:6px;color:var(--text-2);font-size:13.5px;font-weight:560;}
+.sheet-equip-row svg{width:18px;height:18px;fill:var(--text-2);}
+.sheet-stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+
+.yt-link{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  margin:4px 0 20px;padding:14px;border-radius:16px;
+  background:linear-gradient(135deg,var(--day-b),var(--day-a));
+  color:#fff;font-size:15.5px;font-weight:650;
+  min-height:48px;
+  box-shadow:0 8px 20px -6px color-mix(in srgb, var(--day-a) 60%, transparent);
+}
+.yt-link:active{opacity:.85;}
+.yt-link svg{width:20px;height:20px;fill:#fff;}
+
+.sheet-section{margin-bottom:24px;}
+.sheet-section h3{
+  font-size:13px;font-weight:700;letter-spacing:.3px;
+  color:var(--text-3);text-transform:uppercase;margin-bottom:10px;
+}
+.effort-card{
+  background:var(--card-2);border-radius:16px;padding:14px 16px;
+  display:flex;justify-content:space-between;gap:12px;
+}
+.effort-card .item{flex:1;}
+.effort-card .item .label{font-size:11.5px;color:var(--text-3);font-weight:650;text-transform:uppercase;letter-spacing:.2px;}
+.effort-card .item .val{font-size:15.5px;font-weight:650;margin-top:3px;}
+.steps-list{display:flex;flex-direction:column;gap:12px;}
+.step-item{display:flex;gap:12px;align-items:flex-start;}
+.step-num{
+  width:26px;height:26px;border-radius:50%;flex:none;
+  background:var(--day-a);color:#fff;font-size:13px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;margin-top:1px;
+}
+.step-item p{font-size:15px;line-height:1.45;font-weight:460;padding-top:2px;}
+
+.mistakes-list{display:flex;flex-direction:column;gap:12px;}
+.mistake-item{
+  background:var(--card-2);border-radius:16px;padding:13px 15px;
+  border-left:3px solid var(--day-a);
+}
+.mistake-item .m{font-size:14.5px;font-weight:650;line-height:1.35;}
+.mistake-item .f{font-size:14px;color:var(--text-2);margin-top:5px;line-height:1.4;font-weight:460;}
+.mistake-item .f b{color:var(--success);font-weight:650;}
+
+/* ---------- Utility ---------- */
+.hidden{display:none !important;}
+@media (max-width:340px){
+  .home-header h1{font-size:29px;}
+  .day-card h2{font-size:21px;}
+  .ex-card{flex-basis:88%;}
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- HOME VIEW -->
+  <main id="view-home" class="view active">
+    <div class="home-header">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <h1>Workout Guide</h1>
+          <p>Pick today's split. Swipe for variations.</p>
+        </div>
+        <button class="icon-btn" id="darkToggleHome" aria-label="Toggle dark mode">🌙</button>
+      </div>
+    </div>
+    <div class="day-grid" id="dayGrid"></div>
+    <p class="home-footnote">No accounts. No tracking. Nothing saved — just open, pick a day, and go lift.</p>
+  </main>
+
+  <!-- DAY VIEW -->
+  <main id="view-day" class="view">
+    <div id="topbar">
+      <button class="topbar-btn" id="backBtn">
+        <svg viewBox="0 0 12 20"><path d="M11 1L2 10l9 9"/></svg>
+        Home
+      </button>
+      <span class="topbar-title" id="topbarTitle"></span>
+      <button class="icon-btn" id="darkToggleDay" aria-label="Toggle dark mode">🌙</button>
+    </div>
+    <div class="day-hero">
+      <h1 id="dayTitle"></h1>
+      <p id="daySub"></p>
+    </div>
+    <div id="slotsWrap"></div>
+    <div class="recap" id="recapWrap"></div>
+  </main>
+
+  <!-- DETAIL SHEET (nested in #app so it's contained by the desktop device frame) -->
+  <div id="sheet-overlay">
+    <div id="sheet" role="dialog" aria-modal="true">
+      <div class="sheet-handle-area" id="sheetHandleArea">
+        <div class="sheet-handle"></div>
+        <button class="sheet-close" id="sheetCloseBtn" aria-label="Close">✕</button>
+      </div>
+      <div class="sheet-scroll" id="sheetContent"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* =========================================================
+   ICONS
+   ========================================================= */
+const ICONS = {
+  chevronRight: '<svg viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  chevronLeft: '<svg viewBox="0 0 8 14"><path d="M7 1L1 7l6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  play: '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>',
+  equip: {
+    barbell: '<svg viewBox="0 0 48 24"><rect x="1" y="8" width="7" height="8" rx="1.5"/><rect x="10" y="5" width="4" height="14" rx="1.5"/><rect x="16" y="10" width="16" height="4" rx="2"/><rect x="34" y="5" width="4" height="14" rx="1.5"/><rect x="40" y="8" width="7" height="8" rx="1.5"/></svg>',
+    dumbbell: '<svg viewBox="0 0 48 24"><rect x="2" y="5" width="9" height="14" rx="3"/><rect x="13" y="10" width="22" height="4" rx="2"/><rect x="37" y="5" width="9" height="14" rx="3"/></svg>',
+    cable: '<svg viewBox="0 0 24 40"><circle cx="12" cy="7" r="5.5" fill="none" stroke="currentColor" stroke-width="3"/><line x1="12" y1="12.5" x2="12" y2="28" stroke="currentColor" stroke-width="3"/><rect x="3" y="28" width="18" height="6" rx="3"/></svg>',
+    machine: '<svg viewBox="0 0 32 40"><rect x="2" y="2" width="28" height="36" rx="4" fill="none" stroke="currentColor" stroke-width="3"/><line x1="7" y1="10" x2="25" y2="10" stroke="currentColor" stroke-width="3"/><line x1="7" y1="17" x2="25" y2="17" stroke="currentColor" stroke-width="3"/><line x1="7" y1="24" x2="25" y2="24" stroke="currentColor" stroke-width="3"/><line x1="7" y1="31" x2="25" y2="31" stroke="currentColor" stroke-width="3"/></svg>',
+    smith: '<svg viewBox="0 0 48 32"><line x1="6" y1="2" x2="6" y2="30" stroke="currentColor" stroke-width="3"/><line x1="42" y1="2" x2="42" y2="30" stroke="currentColor" stroke-width="3"/><rect x="8" y="13" width="32" height="6" rx="2.5"/></svg>'
+  },
+  day: {
+    chest: '<svg viewBox="0 0 48 48"><ellipse cx="16" cy="24" rx="12.5" ry="15"/><ellipse cx="32" cy="24" rx="12.5" ry="15"/></svg>',
+    back: '<svg viewBox="0 0 48 48"><path d="M24 3 L45 45 L24 34 L3 45 Z"/></svg>',
+    legs: '<svg viewBox="0 0 48 48"><rect x="9" y="3" width="11" height="42" rx="5.5"/><rect x="28" y="3" width="11" height="42" rx="5.5"/></svg>',
+    shoulders: '<svg viewBox="0 0 48 48"><circle cx="12" cy="15" r="10.5"/><circle cx="36" cy="15" r="10.5"/><rect x="11" y="19" width="26" height="9" rx="4.5"/></svg>',
+    arms: '<svg viewBox="0 0 48 48"><path d="M11 42 C9 24 15 9 28 7 C35 6 41 12 38 19 C35 24 27 21 25 28 C22 36 29 38 29 43 Z"/></svg>'
+  }
+};
+const EQUIP_LABEL = {barbell:"Barbell",dumbbell:"Dumbbell",cable:"Cable Machine",machine:"Machine",smith:"Smith Machine"};
+
+/* Real photos (Wikimedia Commons, CC-licensed) for exercises where a
+   genuinely matching, verified real photo exists. Exercises not listed
+   here fall back to the equipment icon — never a mismatched photo. */
+const EXERCISE_IMG = {
+  "Barbell Bench Press": "https://upload.wikimedia.org/wikipedia/commons/4/4d/Bench_Press-_Almog_Dayan.JPG",
+  "Flat Dumbbell Press": "https://upload.wikimedia.org/wikipedia/commons/8/89/Personal_training_dumbbell_chest_press.jpg",
+  "Hammer Strength Chest Press": "https://upload.wikimedia.org/wikipedia/commons/1/11/Bench_press_Machine.jpg",
+  "Smith Machine Flat Press": "https://upload.wikimedia.org/wikipedia/commons/4/43/SmithMachineBenchPress.JPG",
+  "Incline Dumbbell Press": "https://upload.wikimedia.org/wikipedia/commons/c/c8/US_Navy_070227-N-0998G-003_Operations_Specialist_3rd_Class_Greg_Ivy%2C_a_native_of_Sacramento%2C_Calif.%2C_incline_presses_two_30-pound_dumbbells_as_Quartermaster_Seaman_Julian_Marulanda%2C_a_native_of_Bridgeport%2C_Conn.%2C_acts_as_spotte.jpg",
+  "Hammer Strength Incline Press": "https://upload.wikimedia.org/wikipedia/commons/e/e5/Chest_Incline.jpg",
+  "Decline Barbell Press": "https://upload.wikimedia.org/wikipedia/commons/d/d1/Decline_bench_press.webp",
+  "Dip Machine": "https://upload.wikimedia.org/wikipedia/commons/c/cb/Girl_doing_dips_Exercise.jpg",
+  "Cable Fly": "https://upload.wikimedia.org/wikipedia/commons/2/28/Chest_flies_with_cable_machine_-_cable_crossover_flies.jpg",
+  "Pec Deck": "https://upload.wikimedia.org/wikipedia/commons/c/cf/Pec_deck_Fly.jpg",
+  "Dumbbell Fly": "https://upload.wikimedia.org/wikipedia/commons/7/7e/DumbbellFlye.JPG",
+  "Lat Pulldown": "https://upload.wikimedia.org/wikipedia/commons/6/68/Lat_pulldown_machine_20180112.jpg",
+  "Assisted Pull-Up Machine": "https://upload.wikimedia.org/wikipedia/commons/7/73/Zero_to_Twenty-plus%2C_Marine_develops_program_to_improve_pull-ups_160219-M-GG952-002.jpg",
+  "Neutral-Grip Pulldown": "https://upload.wikimedia.org/wikipedia/commons/b/b1/Lat_Pull_down_Machine.jpg",
+  "Seated Cable Row": "https://upload.wikimedia.org/wikipedia/commons/0/0a/Woman_using_a_seated_cable_row_machine_at_the_gym.jpg",
+  "Barbell Row": "https://upload.wikimedia.org/wikipedia/commons/4/46/Landmine_Bent-Over_Rows.jpg",
+  "Single-Arm Lat Pulldown": "https://upload.wikimedia.org/wikipedia/commons/3/33/Amer-Lat-Pulldown.jpg",
+  "Reverse Pec Deck": "https://upload.wikimedia.org/wikipedia/commons/e/e3/Lee_Priest_Sam%27s_Fitness_Pec_Fly.jpg",
+  "Hack Squat Machine": "https://upload.wikimedia.org/wikipedia/commons/c/c5/David_Jobson_%26_Ziggy_Chima%3B_machine_hack_squat.jpg",
+  "Barbell Back Squat": "https://upload.wikimedia.org/wikipedia/commons/3/32/Barbell_pad_back_squat.jpg",
+  "Goblet Squat": "https://upload.wikimedia.org/wikipedia/commons/7/75/Kettle_bell_squats.jpg",
+  "Leg Press": "https://upload.wikimedia.org/wikipedia/commons/9/9f/Leg_Press_Machine.jpg",
+  "Smith Machine RDL": "https://upload.wikimedia.org/wikipedia/commons/3/3b/Deadlift_%281%29.JPG",
+  "Dumbbell RDL": "https://upload.wikimedia.org/wikipedia/commons/d/d8/Fitness_is_more_than_a_daily_obligation%3B_it%27s_a_legacy_%288966986%29.jpg",
+  "Lying Leg Curl": "https://upload.wikimedia.org/wikipedia/commons/c/c6/LyingLegCurlMachineExercise.JPG",
+  "Leg Extension": "https://upload.wikimedia.org/wikipedia/commons/3/36/LegExtensionMachineExercise.JPG",
+  "Standing Calf Raise Machine": "https://upload.wikimedia.org/wikipedia/commons/6/68/DumbbellStandingCalfRaise.JPG",
+  "Seated Calf Raise": "https://upload.wikimedia.org/wikipedia/commons/e/e7/SeatedCalfRaiseMachineExercise.JPG",
+  "Dumbbell Shoulder Press": "https://upload.wikimedia.org/wikipedia/commons/b/b3/Girl_doing_dumbbell_shoulder_press_02.jpg",
+  "Machine Shoulder Press": "https://upload.wikimedia.org/wikipedia/commons/e/e0/Strong_woman_performs_shoulder_press_exercise_in_fitness_gym_during_afternoon_workout_session.jpg",
+  "Dumbbell Front Raise": "https://upload.wikimedia.org/wikipedia/commons/f/fc/Girl_exercising_with_front_dumbbell_raises.jpg",
+  "Cable Lateral Raise": "https://upload.wikimedia.org/wikipedia/commons/2/2f/Shoulder_Fly_Machine.jpg",
+  "Dumbbell Lateral Raise": "https://upload.wikimedia.org/wikipedia/commons/d/d8/DumbbellLateralRaise.JPG",
+  "Barbell Curl": "https://upload.wikimedia.org/wikipedia/commons/8/85/Barbells_5.jpg",
+  "Dumbbell Curl": "https://upload.wikimedia.org/wikipedia/commons/e/e2/Girl_doing_biceps_curls_with_dumbbell_closeup.jpg",
+  "Cable Bar Curl": "https://upload.wikimedia.org/wikipedia/commons/a/ac/Girl_doing_cable_bicep_curl_exercise.jpg",
+  "Preacher Curl Machine": "https://upload.wikimedia.org/wikipedia/commons/c/cc/PreacherBenchBicepsCurl.JPG",
+  "Cable Pushdown": "https://upload.wikimedia.org/wikipedia/commons/5/54/Pushdown_insercaoecorte.jpg",
+  "Close-Grip Bench Press": "https://upload.wikimedia.org/wikipedia/commons/b/b1/Bench_Press.jpg",
+  "Overhead Cable Extension": "https://upload.wikimedia.org/wikipedia/commons/f/f5/Back_view_of_cable_overhead_biceps_extension%2C_girl_is_exercising_in_the_gym.jpg",
+  "Skull Crushers": "https://upload.wikimedia.org/wikipedia/commons/5/51/DumbbellTricepsExtension.JPG",
+  "Cable Wrist Curl": "https://upload.wikimedia.org/wikipedia/commons/8/85/Wrist_curls.jpg",
+  "Barbell Shrug": "https://upload.wikimedia.org/wikipedia/commons/a/aa/USMC-110219-M-2021D-003.jpg"
+};
+/* Per-day accent theme — threaded through the whole day view + sheet via
+   CSS custom properties so nothing reads as flat, generic chrome. */
+const DAY_THEME = {
+  chest:     {a:"#FF3B30", b:"#FF6B5E"},
+  back:      {a:"#1DB876", b:"#3DDC97"},
+  legs:      {a:"#3B7CFF", b:"#5AA7FF"},
+  shoulders: {a:"#A855F7", b:"#C084FC"},
+  arms:      {a:"#FF9500", b:"#FFB84D"}
+};
+function applyTheme(key){
+  const t = DAY_THEME[key];
+  document.documentElement.style.setProperty("--day-a", t.a);
+  document.documentElement.style.setProperty("--day-b", t.b);
+}
+
+/* Body silhouette used inside the detail sheet, with a glowing
+   highlight positioned over the trained muscle group. */
+const BODY_SVG = '<svg class="body" viewBox="0 0 120 200"><circle cx="60" cy="18" r="14"/><rect x="53" y="30" width="14" height="11" rx="4"/><rect x="33" y="38" width="54" height="74" rx="26"/><rect x="10" y="40" width="18" height="86" rx="9"/><rect x="92" y="40" width="18" height="86" rx="9"/><circle cx="19" cy="130" r="10"/><circle cx="101" cy="130" r="10"/><rect x="36" y="112" width="20" height="80" rx="10"/><rect x="64" y="112" width="20" height="80" rx="10"/><ellipse cx="46" cy="196" rx="13" ry="6"/><ellipse cx="74" cy="196" rx="13" ry="6"/></svg>';
+
+const MUSCLE_MAP = {
+  chest:       {top:"20%", left:"25%", width:"50%", height:"15%"},
+  back:        {top:"15%", left:"18%", width:"64%", height:"28%"},
+  frontDelt:   {top:"16%", left:"12%", width:"76%", height:"10%"},
+  lateralDelt: {top:"15%", left:"9%",  width:"82%", height:"11%"},
+  rearDelt:    {top:"16%", left:"11%", width:"78%", height:"10%"},
+  biceps:      {top:"27%", left:"4%",  width:"92%", height:"14%"},
+  triceps:     {top:"27%", left:"4%",  width:"92%", height:"14%"},
+  forearms:    {top:"41%", left:"2%",  width:"96%", height:"12%"},
+  quads:       {top:"54%", left:"22%", width:"56%", height:"21%"},
+  hamstrings:  {top:"54%", left:"22%", width:"56%", height:"21%"},
+  calves:      {top:"75%", left:"25%", width:"50%", height:"17%"},
+  traps:       {top:"10%", left:"30%", width:"40%", height:"9%"}
+};
+
+/* =========================================================
+   EXERCISE DATA
+   Every entry: name, equip, muscle (for glow), sets, rpe,
+   steps[], mistakes[{m,f}], yt (search query)
+   ========================================================= */
+function Ex(name, equip, muscle, sets, rpe, steps, mistakes, yt){
+  return {name, equip, muscle, sets, rpe, steps, mistakes, yt};
+}
+function M(m,f){ return {m,f}; }
+
+const DB = {
+  chest: {
+    label:"Chest", icon:"chest", cls:"chest",
+    sub:"Flat press → Incline press → Decline press → Dips → Fly",
+    slots:[
+      { name:"Flat Press", options:[
+        Ex("Barbell Bench Press","barbell","chest","4 sets × 6–8 reps","RPE 7–8 · leave 2–3 reps in reserve",
+          ["Lie on the bench with eyes directly under the bar, feet flat on the floor.",
+           "Grip the bar slightly wider than shoulder-width, unrack, and lower it to your lower chest with elbows at roughly 45°.",
+           "Lightly touch the bar to your chest, then press up and slightly back until arms are fully extended.",
+           "Keep shoulder blades pinned back and down, and glutes on the bench, for every rep."],
+          [M("Flaring elbows out to 90°","Stresses the shoulder joint. Tuck elbows to about a 45° angle from your torso instead."),
+           M("Bouncing the bar off the chest","Cuts tension and risks injury. Lower under control and pause briefly at the chest."),
+           M("Hips lifting off the bench","Turns it into a leg-drive cheat rep. Keep glutes glued down and drive through your feet.")],
+          "barbell bench press proper form tutorial"),
+        Ex("Flat Dumbbell Press","dumbbell","chest","4 sets × 8–10 reps","RPE 7–8",
+          ["Sit on the bench with dumbbells resting on your thighs, then kick them up to shoulder height as you lie back.",
+           "Position the dumbbells at chest level, palms facing forward, elbows under your wrists.",
+           "Press the dumbbells up and slightly inward until they nearly touch above your chest.",
+           "Lower slowly until your upper arms are about parallel to the floor, feeling a stretch in the chest."],
+          [M("Letting the dumbbells drop too low","Risks shoulder strain. Stop the descent once upper arms are parallel to the floor."),
+           M("Clanking dumbbells together with locked elbows","Loses chest tension at the top. Stop just short of touching, elbows slightly soft."),
+           M("Uneven left/right arm paths","One side ends up doing more work. Press both dumbbells in mirrored, symmetric paths.")],
+          "flat dumbbell press form"),
+        Ex("Hammer Strength Chest Press","machine","chest","4 sets × 8–10 reps","RPE 7–8",
+          ["Adjust the seat so the handles line up with mid-chest height.",
+           "Grip the handles fully, feet flat on the floor or footrest.",
+           "Press forward until your arms are extended without locking the elbows hard.",
+           "Return slowly until you feel a stretch across the chest — don't let the stack slam."],
+          [M("Seat set too high or too low","Shifts stress onto the shoulders. Line the handles up with mid-chest before you start."),
+           M("Jerking the weight off the chest","Shortchanges muscle tension. Press smoothly and control the negative for 2–3 seconds."),
+           M("Cutting the range of motion short","Limits the growth stimulus. Let the handles return until you feel a light chest stretch each rep.")],
+          "hammer strength chest press form"),
+        Ex("Smith Machine Flat Press","smith","chest","4 sets × 8–10 reps","RPE 7–8",
+          ["Set the bench so the bar lines up directly over your lower chest when lying down.",
+           "Unhook the bar by rotating your wrists, then lower it to your chest with elbows around 45°.",
+           "Press the bar back up until your arms are extended, following the machine's fixed vertical path.",
+           "Re-hook the bar on the rack after your last rep by rotating your wrists to lock it in."],
+          [M("Bench positioned so the bar doesn't track over the chest","Creates an awkward pressing angle. Line the bar up over your lower chest before unracking."),
+           M("Arching heavily like a free-bar bench","The bar only moves in a straight vertical line here. Keep a moderate arch and let the rail guide the bar."),
+           M("Not fully re-racking the bar","A real safety hazard. Twist your wrists to lock the hooks before letting go.")],
+          "smith machine flat bench press form")
+      ]},
+      { name:"Incline Press", options:[
+        Ex("Incline Dumbbell Press","dumbbell","chest","3–4 sets × 8–10 reps","RPE 7–8",
+          ["Set the bench to a 30–45° incline and kick the dumbbells up to shoulder height as you lie back.",
+           "Position dumbbells at upper-chest level, elbows roughly under your wrists.",
+           "Press up and slightly inward until arms are extended.",
+           "Lower under control until upper arms are about parallel to the floor."],
+          [M("Setting the incline steeper than 45°","Turns it into a front-delt exercise instead of upper chest. Keep the bench between 30–45°."),
+           M("Flaring elbows straight out to the sides","Strains the shoulders. Keep elbows around 45–60° from your torso."),
+           M("Short, partial reps","Less muscle stimulus. Lower until upper arms are parallel to the floor before pressing back up.")],
+          "incline dumbbell press form"),
+        Ex("Incline Barbell Press","barbell","chest","4 sets × 6–8 reps","RPE 7–8",
+          ["Set the bench to a 30–45° incline, grip the bar slightly wider than shoulder-width.",
+           "Unrack and lower the bar to your upper chest, just below the collarbone.",
+           "Press up and slightly back until arms are fully extended.",
+           "Control the descent every rep instead of dropping the bar down."],
+          [M("Lowering the bar too high toward the neck","Puts the shoulder in an awkward position. Aim for the upper chest, just below the collarbone."),
+           M("Using too steep an incline","Turns the movement into a shoulder press. Cap the incline near 30–45°."),
+           M("Uneven bar path side to side","Creates imbalance over time. Lower and press in one straight vertical line.")],
+          "incline barbell bench press form"),
+        Ex("Hammer Strength Incline Press","machine","chest","3–4 sets × 8–10 reps","RPE 7–8",
+          ["Adjust the seat so the handles align with your upper chest.",
+           "Grip the handles and press forward until arms are extended without locking hard.",
+           "Control the return to a full stretch at your upper chest.",
+           "Keep your back and head against the pad throughout."],
+          [M("Seat set too low so handles sit at shoulder level","Shifts work onto the front delts. Raise the seat so handles align with your upper chest/collarbone."),
+           M("Locking elbows out hard at the top","Adds unnecessary joint stress. Stop just short of lockout."),
+           M("Rushing through reps","Less time under tension. Use a slow, 2-second negative on every rep.")],
+          "hammer strength incline press form"),
+        Ex("Smith Machine Incline Press","smith","chest","3–4 sets × 8–10 reps","RPE 7–8",
+          ["Set an adjustable bench to 30–45° under the Smith bar.",
+           "Unrack the bar by rotating your wrists, then lower it to your upper chest.",
+           "Press the bar back up until arms are extended.",
+           "Control the eccentric — don't let the bar drop."],
+          [M("Setting the incline too steep","Overloads the shoulders instead of the upper chest. Keep it around 30–45°."),
+           M("Positioning the bench so the bar doesn't track over the upper chest","Creates an awkward path. Adjust the bench until the bar sits directly above your upper chest at the bottom."),
+           M("Dropping the bar instead of controlling it","Loses tension and adds joint stress. Lower over a 2-second count.")],
+          "smith machine incline press form")
+      ]},
+      { name:"Decline Press", options:[
+        Ex("Decline Barbell Press","barbell","chest","3–4 sets × 8–10 reps","RPE 7–8",
+          ["Secure your feet under the footpads on a decline bench, grip the bar slightly wider than shoulder-width.",
+           "Unrack the bar and lower it to your lower chest, elbows around 45°.",
+           "Press the bar back up until arms are extended, following the same bar path.",
+           "Keep your core braced and hips still — don't let your body slide up the bench."],
+          [M("Sliding up the bench during the set","Loses a stable base. Hook your feet firmly under the pads and reset your position between sets."),
+           M("Bringing the bar too low toward the stomach","An awkward, low-value range. Aim the bar for your lower chest, not your abdomen."),
+           M("Rushing the unrack/re-rack on an unfamiliar angle","Real safety risk. Have a clear plan before unracking, and use a spotter or lighter weight if unsure.")],
+          "decline barbell bench press form"),
+        Ex("Decline Dumbbell Press","dumbbell","chest","3–4 sets × 8–10 reps","RPE 7–8",
+          ["Secure your feet under the pads on a decline bench, dumbbells at shoulder height, palms forward.",
+           "Press the dumbbells up and slightly inward until arms are extended.",
+           "Lower under control to the sides of your lower chest.",
+           "Keep your shoulder blades pulled back and down throughout."],
+          [M("Letting elbows flare to 90°","Shoulder strain. Keep elbows around a 45° angle from your torso."),
+           M("Using momentum to kick the dumbbells into position","Risky on a decline angle. Move deliberately, or get help lifting the dumbbells into place."),
+           M("Going too heavy and cutting the range short","Less stimulus. Choose a weight that allows a full stretch at the bottom.")],
+          "decline dumbbell press form"),
+        Ex("Decline Smith Machine Press","smith","chest","3–4 sets × 8–10 reps","RPE 7–8",
+          ["Set a decline bench under the Smith bar so it lines up over your lower chest.",
+           "Unrack by rotating your wrists, then lower the bar to your lower chest.",
+           "Press back up along the machine's fixed vertical path.",
+           "Re-hook the bar securely on the rack when you're finished."],
+          [M("Bench misaligned with the bar's path","Creates an awkward pressing angle. Adjust the bench until the bar tracks directly over your lower chest."),
+           M("Not bracing the core on the decline angle","Lets your body slide during the set. Keep your core tight and feet locked under the pads."),
+           M("Forgetting to re-rack the bar","A real safety hazard. Always twist your wrists to lock the hooks before releasing.")],
+          "smith machine decline press form")
+      ]},
+      { name:"Dips (Chest-Focused)", options:[
+        Ex("Dip Machine","machine","chest","3 sets × 10–12 reps","RPE 7–8",
+          ["Step onto the platform or sit into the machine, gripping the handles.",
+           "Lean your torso forward slightly to bias the chest over the triceps.",
+           "Lower until you feel a stretch across your chest, elbows flaring naturally outward.",
+           "Press back up to extension, squeezing your chest at the top."],
+          [M("Staying too upright","Shifts focus onto the triceps instead of the chest. Lean your torso forward about 15–30° throughout."),
+           M("Descending too deep with a heavy load","Shoulder strain risk. Stop once you feel a chest stretch — don't force extra depth."),
+           M("Rushing reps with bouncing","Reduces chest tension. Control both the lowering and pressing phases.")],
+          "chest dip machine form"),
+        Ex("Assisted Dip Machine","machine","chest","3 sets × 10–12 reps","RPE 7–8",
+          ["Set the assistance level so the last couple reps of the set are challenging.",
+           "Kneel or stand on the platform, leaning your torso forward slightly.",
+           "Lower until you feel a chest stretch, then press back up to extension.",
+           "Keep the forward lean consistent throughout the set for chest emphasis."],
+          [M("Setting too much assistance","Makes the set too easy to build real strength. Reduce assistance progressively as dips get easier."),
+           M("Letting the torso drift upright as you fatigue","Shifts stress onto the triceps. Consciously hold your forward lean each rep."),
+           M("Flaring the elbows out excessively","Shoulder discomfort. Let elbows flare naturally, but keep the motion controlled, not forced wide.")],
+          "assisted dip machine chest form")
+      ]},
+      { name:"Fly", options:[
+        Ex("Cable Fly","cable","chest","3 sets × 12–15 reps","RPE 7–8 · light weight, full stretch",
+          ["Set both pulleys above shoulder height, step forward into a slight lean.",
+           "Grip the handles with a soft, fixed bend in the elbows.",
+           "Sweep your hands together in an arcing hug motion, squeezing at the center.",
+           "Return slowly to a deep stretch before starting the next rep."],
+          [M("Bending the elbows more and pressing forward","Reduces chest isolation and turns it into a press. Keep a fixed elbow bend and move only at the shoulder."),
+           M("Using too much weight and losing the arc","Shifts stress onto the shoulders. Drop the weight and focus on a wide hugging arc."),
+           M("Not stretching back far enough","Results in half reps. Let your hands drift back to a deep chest stretch before squeezing in.")],
+          "cable fly chest form"),
+        Ex("Pec Deck","machine","chest","3 sets × 12–15 reps","RPE 7–8",
+          ["Adjust the seat so the handles sit at chest height.",
+           "Place forearms/elbows on the pads.",
+           "Bring the pads together in front of your chest, squeezing hard.",
+           "Return slowly to a stretch — don't let the stack crash."],
+          [M("Seat set too low","Handles hit at shoulder level and strain the shoulders. Adjust so the pads align with mid-chest."),
+           M("Slamming the pads together and letting the weight drop fast","No eccentric control. Use a 2-second squeeze and a 2-second release."),
+           M("Rounding the shoulders forward at the top","Loses chest tension. Keep your chest up and shoulder blades set.")],
+          "pec deck machine form"),
+        Ex("Dumbbell Fly","dumbbell","chest","3 sets × 10–12 reps","RPE 7",
+          ["Lie on a flat bench with dumbbells pressed above your chest, palms facing in.",
+           "Lower your arms out in a wide arc with a slight elbow bend.",
+           "Stop when you feel a stretch across the chest, roughly at shoulder level.",
+           "Bring the dumbbells back together above your chest."],
+          [M("Going too heavy and losing control at the bottom","Risks shoulder strain. Use a light-to-moderate weight and stop the stretch at shoulder level."),
+           M("Bending the elbows more as you fatigue","Turns it into a press, reducing isolation. Keep a consistent, slight elbow bend."),
+           M("Lowering too fast","Loses control at the bottom. Lower for a 2–3 count, especially near the stretch.")],
+          "dumbbell fly form")
+      ]}
+    ]
+  },
+
+  back: {
+    label:"Back", icon:"back", cls:"back",
+    sub:"Vertical pull → Horizontal pull → Underhand row → Lat isolation → Face pull",
+    slots:[
+      { name:"Vertical Pull", options:[
+        Ex("Lat Pulldown","cable","back","4 sets × 8–10 reps","RPE 7–8",
+          ["Set the thigh pad snug and grab the bar wider than shoulder-width, palms facing away.",
+           "Lean back slightly (about 10–15°) and pull the bar down to your upper chest, driving elbows down and back.",
+           "Squeeze your lats at the bottom and pause briefly.",
+           "Let the bar rise slowly until arms are fully extended and lats are stretched."],
+          [M("Leaning back too far","Turns it into a row and reduces lat engagement. Keep the torso lean minimal, around 10–15°."),
+           M("Pulling the bar behind the neck","Real shoulder impingement risk. Always pull to the front, toward your upper chest."),
+           M("Using body swing/momentum to yank the bar down","Reduces muscle tension. Slow the pull and drive with your elbows, not your hands.")],
+          "lat pulldown proper form"),
+        Ex("Assisted Pull-Up Machine","machine","back","3–4 sets × 8–10 reps","RPE 7–8",
+          ["Set the assistance weight (more weight = more help) and kneel or stand on the platform.",
+           "Grip the bar just outside shoulder-width, palms facing away.",
+           "Pull your chest up toward the bar, driving elbows down, until your chin clears the bar.",
+           "Lower under control until arms are fully extended."],
+          [M("Setting too much assistance","Makes reps too easy and stalls progress. Pick a weight where the last 1–2 reps are genuinely hard."),
+           M("Using short, bouncy partial reps","Misses the stretch and squeeze. Go all the way down to a full stretch each rep."),
+           M("Shrugging shoulders up toward the ears to start","Shifts load onto the traps. Initiate the pull by depressing your shoulder blades first.")],
+          "assisted pull up machine form"),
+        Ex("Neutral-Grip Pulldown","cable","back","3–4 sets × 10–12 reps","RPE 7–8",
+          ["Attach a neutral-grip (parallel handle) bar to the cable and sit with thighs secured.",
+           "Grip the handles with palms facing each other.",
+           "Pull down to your upper chest, elbows tracking close to your body.",
+           "Control the return to a full stretch overhead."],
+          [M("Elbows flaring wide","Shifts tension away from the lats. Keep elbows tracking down and slightly in, close to the ribs."),
+           M("Using too heavy a weight and only completing half the range","Undertrains the stretch position. Drop the weight until you can pull through the full range."),
+           M("Jerking the torso backward to start the pull","Cheats the movement. Keep your torso still and initiate with the lats.")],
+          "neutral grip lat pulldown form")
+      ]},
+      { name:"Horizontal Pull", options:[
+        Ex("Seated Cable Row","cable","back","4 sets × 8–10 reps","RPE 7–8",
+          ["Sit with feet on the platform, knees slightly bent, and grab the handle.",
+           "Sit tall with a slight forward lean, then pull the handle to your lower ribs/upper abdomen.",
+           "Drive elbows straight back, squeezing shoulder blades together at the end.",
+           "Return slowly, letting the shoulders round forward slightly for a stretch."],
+          [M("Rocking the torso back and forth with momentum","Turns it into a hip hinge instead of a row. Keep the torso mostly still, small lean only at the finish."),
+           M("Rounding the lower back","Real injury risk. Sit tall, brace your core, and hinge from the hips, not the spine."),
+           M("Shrugging shoulders toward the ears","Recruits traps over back muscles. Keep shoulders down and pull with the elbows.")],
+          "seated cable row form"),
+        Ex("Chest-Supported Row Machine","machine","back","3–4 sets × 8–10 reps","RPE 7–8",
+          ["Adjust the seat/chest pad so the handles are at chest height.",
+           "Press your chest into the pad and grip the handles with a neutral or overhand grip.",
+           "Row the handles back, squeezing shoulder blades together, elbows driving back.",
+           "Return slowly to a full stretch without letting the stack slam."],
+          [M("Chest lifting off the pad to help pull the weight","Removes strictness and risks the lower back. Keep your chest pinned to the pad the whole set."),
+           M("Only moving the arms, barely engaging the shoulder blades","Less back activation. Think 'elbows back' and squeeze the blades together at the finish."),
+           M("Going too heavy and using half reps","Limits the stimulus. Choose a weight that allows a full stretch-to-squeeze range.")],
+          "chest supported row machine form"),
+        Ex("Barbell Row","barbell","back","4 sets × 6–8 reps","RPE 7–8",
+          ["Hinge at the hips with a flat back, torso around 45° to the floor, grip the bar shoulder-width.",
+           "Let the bar hang with arms straight, then pull it to your lower ribs/upper abdomen.",
+           "Drive elbows back and up, squeezing shoulder blades together.",
+           "Lower under control back to a full arm extension without rounding your back."],
+          [M("Rounding the lower back under load","Serious injury risk. Brace your core and keep a neutral spine before every rep — drop the weight if you can't."),
+           M("Standing too upright","Turns it into a shrug instead of a row. Keep the torso at roughly a 45° hinge throughout."),
+           M("Yanking the bar up with momentum","Reduces back tension. Pull with a controlled, deliberate motion.")],
+          "barbell row proper form"),
+        Ex("One-Arm Dumbbell Row","dumbbell","back","3–4 sets × 8–10 reps each side","RPE 7–8",
+          ["Place one knee and hand on a bench, flat back, opposite foot planted on the floor.",
+           "Let the dumbbell hang straight down from a relaxed shoulder.",
+           "Row the dumbbell up to your hip, driving the elbow back and up.",
+           "Lower under control to a full stretch, then switch sides."],
+          [M("Twisting the torso to help lift the weight","Cheats the lats out of the work. Keep hips and shoulders square to the bench."),
+           M("Rowing up toward the armpit at a high angle","Changes the muscle emphasis away from the target. Row toward the hip, elbow close to the body."),
+           M("Rounding or overextending the lower back","Strain risk. Keep a flat back, brace your core, and support yourself with the bench hand.")],
+          "one arm dumbbell row form")
+      ]},
+      { name:"Underhand Row", options:[
+        Ex("Close-Grip Seated Cable Row","cable","back","3–4 sets × 8–10 reps","RPE 7–8",
+          ["Attach a close, neutral-grip handle to the low pulley and sit with feet on the platform.",
+           "Sit tall with a slight forward lean, gripping the handle with both hands close together.",
+           "Pull the handle to your lower ribs, elbows driving straight back close to your body.",
+           "Return slowly to a full stretch, controlling the weight."],
+          [M("Using a wide grip instead of the close attachment","Misses the intended lower-lat emphasis. Use the close, neutral-grip handle for this variation."),
+           M("Letting the shoulders round forward at full stretch","Reduces control. Allow a slight stretch but keep the shoulder blades from collapsing."),
+           M("Pulling too high toward the chest","Shifts emphasis to the upper back instead of the lats. Aim the pull toward your lower ribs/upper abdomen.")],
+          "close grip seated cable row form"),
+        Ex("Underhand-Grip Barbell Row","barbell","back","3–4 sets × 6–8 reps","RPE 7–8",
+          ["Hinge at the hips with a flat back, torso around 45°, and grip the bar underhand (palms up), shoulder-width.",
+           "Let the bar hang with arms straight.",
+           "Pull the bar to your lower abdomen, driving elbows back and close to your body.",
+           "Lower under control back to full extension."],
+          [M("Rounding the lower back","Serious injury risk. Brace your core and keep a neutral spine, reducing weight if needed."),
+           M("Using an overhand grip by mistake","Defeats the point of this variation. Keep palms facing up (supinated) for the underhand-row emphasis."),
+           M("Standing too upright","Turns it into a shrug. Maintain the 45° hip hinge throughout the set.")],
+          "underhand grip barbell row form"),
+        Ex("T-Bar Row Machine","machine","back","3–4 sets × 8–10 reps","RPE 7–8",
+          ["Straddle the machine or load the T-bar attachment, chest against the pad if available.",
+           "Grip the handles and hinge forward with a flat back.",
+           "Row the weight up to your torso, squeezing shoulder blades together.",
+           "Lower slowly back to a full stretch."],
+          [M("Using momentum by jerking the torso up","Reduces back tension and risks the lower back. Row in a slow, controlled motion, staying braced and stable."),
+           M("Rounding the back at the bottom of the stretch","Strain risk. Keep a neutral spine and stop the descent if your back starts to round."),
+           M("Only using a partial range near the top","Less muscle stimulus. Lower to a full stretch before each pull.")],
+          "T-bar row machine form")
+      ]},
+      { name:"Rear / Lat Isolation", options:[
+        Ex("Straight-Arm Pulldown","cable","back","3 sets × 12–15 reps","RPE 7",
+          ["Attach a straight bar or rope to a high pulley, stand facing the machine with a slight forward lean.",
+           "Grip with arms extended, a slight fixed bend in the elbows.",
+           "Pull the bar down in an arc to your thighs, keeping arms straight.",
+           "Let it rise slowly back to shoulder height, feeling a lat stretch."],
+          [M("Bending the elbows more as the set gets hard","Turns it into a pushdown and loses lat isolation. Lock in a slight elbow bend and keep it constant."),
+           M("Shrugging the shoulders to help pull the weight down","Reduces lat activation. Keep shoulders down and pull from the lats."),
+           M("Standing too far from the machine with a big lean","Alters the pulling angle. Stand close and hinge forward only slightly at the hips.")],
+          "straight arm pulldown form"),
+        Ex("Single-Arm Lat Pulldown","cable","back","3 sets × 10–12 reps each side","RPE 7",
+          ["Attach a single handle to the pulldown cable, sit or kneel facing the machine.",
+           "Grip the handle overhead with a straight arm, slight torso lean away from the machine.",
+           "Pull the handle down to your side, driving the elbow down and back.",
+           "Return slowly to a full overhead stretch, then repeat on the other side."],
+          [M("Rotating the torso excessively to assist the pull","Turns it into a twisting motion. Keep hips and shoulders relatively square."),
+           M("Rushing through reps","Loses the stretch and squeeze. Pause briefly at full stretch and full contraction."),
+           M("Using a weight so heavy the shoulder shrugs up","Shifts stress to the traps. Lower the weight and keep the shoulder packed down.")],
+          "single arm lat pulldown form")
+      ]},
+      { name:"Face Pull", options:[
+        Ex("Cable Face Pull (High Pulley)","cable","rearDelt","3 sets × 12–15 reps","RPE 7",
+          ["Attach a rope to a high pulley and grip the ends with palms facing each other.",
+           "Step back to create tension, feet shoulder-width.",
+           "Pull the rope toward your face, splitting the ends apart as your elbows flare out and up.",
+           "Squeeze your shoulder blades together at the end, then return slowly."],
+          [M("Using too heavy a weight and turning it into a low row","Loses the rear-delt/upper-back emphasis. Lighten the load and pull to face height with elbows high."),
+           M("Letting elbows drop below shoulder height","Shifts the movement to the mid-back instead of the rear delts. Keep elbows tracking at or above shoulder height."),
+           M("Rushing the return, letting the weight yank your arms forward","Loses tension and control. Control the return for a 2-second count.")],
+          "cable face pull form"),
+        Ex("Cable Face Pull (Chest-Height Pulley)","cable","rearDelt","3 sets × 12–15 reps","RPE 7",
+          ["Set the pulley to chest height, attach a rope, and grip with palms facing each other.",
+           "Step back for tension, standing with a slight athletic stance.",
+           "Pull the rope toward your face/upper chest, elbows flaring out to the sides.",
+           "Squeeze shoulder blades together, then return slowly with control."],
+          [M("Standing too close to the machine","Loses tension at the start of the pull. Step back far enough that the cable stays taut through the full range."),
+           M("Shrugging the shoulders up during the pull","Recruits traps over rear delts. Keep shoulders down and pull the elbows back and out."),
+           M("Using a jerky, fast tempo","Less muscle control. Pull and return in a smooth, deliberate motion.")],
+          "cable face pull chest height form")
+      ]}
+    ]
+  },
+
+  legs: {
+    label:"Legs", icon:"legs", cls:"legs",
+    sub:"Primary compound → Posterior chain → Quads → Hamstrings → Calves",
+    slots:[
+      { name:"Primary Compound", options:[
+        Ex("Hack Squat Machine","machine","quads","4 sets × 8–10 reps","RPE 7–8",
+          ["Position your shoulders under the pads, feet shoulder-width on the platform, slightly forward.",
+           "Release the safety and bend your knees to lower the sled until thighs are just past parallel.",
+           "Drive through your whole foot to press back up to a near-lockout.",
+           "Keep your lower back flat against the pad throughout."],
+          [M("Feet placed too high or too low on the platform","Shifts stress away from the quads. Place feet mid-platform, shoulder-width, for balanced quad emphasis."),
+           M("Lower back rounding off the pad at the bottom","Spinal strain risk. Only go as deep as you can while keeping your back flat."),
+           M("Locking the knees out hard at the top","Unnecessary joint stress. Stop just short of a full lockout.")],
+          "hack squat machine form"),
+        Ex("Barbell Back Squat","barbell","quads","4 sets × 6–8 reps","RPE 7–8",
+          ["Set the bar on your upper traps, grip just outside shoulders, unrack and step back.",
+           "Feet shoulder-width, toes slightly out, brace your core.",
+           "Squat down by bending hips and knees together until thighs are at least parallel to the floor.",
+           "Drive through your midfoot to stand back up to full extension."],
+          [M("Knees caving inward as you stand up","Injury risk and lost power. Actively push knees out in line with your toes."),
+           M("Hips rising first with the chest dropping forward ('good morning' squat)","Hammers the lower back instead of the legs. Drive chest and hips up together at the same rate."),
+           M("Not squatting deep enough","Undertrains the legs. Aim for thighs at least parallel to the floor if mobility allows.")],
+          "barbell back squat proper form"),
+        Ex("Goblet Squat","dumbbell","quads","3–4 sets × 10–12 reps","RPE 7–8",
+          ["Hold a dumbbell vertically against your chest with both hands under the top plate.",
+           "Feet shoulder-width, toes slightly out, elbows pointed down inside your knees.",
+           "Squat down until elbows lightly brush the inside of your knees.",
+           "Drive through your feet to stand back up tall."],
+          [M("Letting the chest collapse forward","Shifts load off the legs. Keep your chest up and proud through the whole squat."),
+           M("Rising up onto the toes","Loses stability. Keep weight spread through the whole foot, especially the heel."),
+           M("Stopping the squat too shallow to avoid discomfort","Undertrains the muscle. Work on ankle/hip mobility to reach elbows-to-knees depth over time.")],
+          "goblet squat form"),
+        Ex("Leg Press","machine","quads","4 sets × 10–12 reps","RPE 7–8",
+          ["Sit in the machine, feet shoulder-width on the platform, mid-height.",
+           "Release the safety and lower the platform by bending your knees toward your chest.",
+           "Stop when knees reach about 90° — or as deep as comfortable without the hips rounding off the seat.",
+           "Press through your whole foot back to a near-lockout, without slamming the knees straight."],
+          [M("Lowering so deep the lower back rounds off the seat","Spinal strain risk. Only lower until your hips just start to tuck, not past it."),
+           M("Locking the knees out completely and hard at the top","Joint stress. Stop just shy of full lockout, keep a soft bend."),
+           M("Feet placed too low on the platform","Shifts stress onto the knees. Keep feet centered, shoulder-width, mid-to-upper platform.")],
+          "leg press machine form")
+      ]},
+      { name:"Posterior Chain", options:[
+        Ex("Smith Machine RDL","smith","hamstrings","3–4 sets × 10–12 reps","RPE 7–8",
+          ["Stand with the bar at hip height, feet hip-width, slight bend in the knees.",
+           "Unrack the bar, hinge at the hips and push them back, letting the bar slide down your thighs.",
+           "Lower until you feel a strong hamstring stretch (roughly mid-shin), keeping your back flat.",
+           "Drive your hips forward to return to standing, squeezing your glutes at the top."],
+          [M("Bending the knees too much, turning it into a squat","Takes tension off the hamstrings. Keep knees only slightly bent and fixed, hinge from the hips."),
+           M("Rounding the lower back at the bottom","Injury risk. Keep chest up and back flat, stop the descent once your back wants to round."),
+           M("Letting the bar drift away from your legs","Strains the lower back with poor leverage. Keep the bar sliding close along your thighs/shins.")],
+          "smith machine RDL form"),
+        Ex("Dumbbell RDL","dumbbell","hamstrings","3–4 sets × 10–12 reps","RPE 7–8",
+          ["Hold dumbbells in front of your thighs, feet hip-width, slight knee bend.",
+           "Push your hips back, hinging forward while keeping the dumbbells close to your legs.",
+           "Lower until you feel a deep hamstring stretch, back flat, shoulders down.",
+           "Squeeze your glutes and drive hips forward to return to standing."],
+          [M("Squatting down instead of hinging back","Misses the hamstrings entirely. Focus on pushing your hips backward, like closing a car door with them."),
+           M("Rounding the upper back","Reduces control and risks strain. Keep your chest lifted and shoulder blades set."),
+           M("Going too heavy and cutting the range short","Undertrains the stretch. Reduce weight so you can lower to at least mid-shin with good form.")],
+          "dumbbell RDL form"),
+        Ex("Seated Leg Curl","machine","hamstrings","3 sets × 10–12 reps","RPE 7–8",
+          ["Adjust the machine so the back pad supports you and the ankle pad sits just above your heels.",
+           "Secure the thigh pad snug against your legs.",
+           "Curl your legs down/back by bending the knees, squeezing hamstrings at the bottom.",
+           "Return slowly to a full stretch without letting the stack slam."],
+          [M("Using momentum to jerk the weight","Reduces hamstring tension. Curl smoothly, no swinging."),
+           M("Only doing partial reps","Limits the stretch and squeeze. Extend to a full stretch each rep, then curl fully."),
+           M("Lifting the hips off the seat","Cheats the movement. Keep hips and back pressed into the pad throughout.")],
+          "seated leg curl machine form")
+      ]},
+      { name:"Quad Isolation", options:[
+        Ex("Leg Extension","machine","quads","3 sets × 12–15 reps","RPE 7–8",
+          ["Adjust the seat so your knees align with the machine's pivot point.",
+           "Hook your ankles behind the pad, hands holding the side grips.",
+           "Extend your legs until nearly straight, squeezing your quads hard at the top.",
+           "Lower slowly back to the start, controlling the weight the whole way."],
+          [M("Using a weight so heavy the hips lift off the seat","Reduces quad isolation and strains the lower back. Lower the weight and keep hips flat against the seat."),
+           M("Kicking the weight up fast with momentum","Less muscle tension. Extend in a slow, controlled 2-second count."),
+           M("Locking the knees out violently at the top","Joint stress. Squeeze hard but stop just at full extension without slamming.")],
+          "leg extension machine form")
+      ]},
+      { name:"Hamstring Isolation", options:[
+        Ex("Lying Leg Curl","machine","hamstrings","3 sets × 10–12 reps","RPE 7–8",
+          ["Lie face down, ankle pad positioned just above your heels, knees just off the edge of the bench.",
+           "Grip the handles and keep your hips pressed into the bench.",
+           "Curl your heels toward your glutes, squeezing hamstrings at the top.",
+           "Lower slowly back to a full leg extension."],
+          [M("Hips lifting off the bench during the curl","Loses hamstring isolation. Keep hips pinned down — reduce the weight if needed."),
+           M("Using fast, jerky reps","Less time under tension. Curl and lower on a controlled 2–3 second tempo."),
+           M("Not curling all the way up","Partial contraction. Bring your heels as close to your glutes as your flexibility allows.")],
+          "lying leg curl machine form"),
+        Ex("Standing Leg Curl","machine","hamstrings","3 sets × 12–15 reps each leg","RPE 7",
+          ["Stand facing the machine, position one ankle behind the pad, hips against the support.",
+           "Hold the handles for balance and keep your hips square to the machine.",
+           "Curl the pad up toward your glute, squeezing the hamstring at the top.",
+           "Lower slowly to a full stretch, complete your reps, then switch legs."],
+          [M("Letting the hips rotate or hike up during the curl","Cheats the movement. Keep hips square and pressed against the pad."),
+           M("Swinging the working leg with momentum","Reduces hamstring tension. Curl in a slow, controlled motion."),
+           M("Standing too far from the pad","Creates an awkward pivot point. Stand close so the pad lines up with a natural ankle bend.")],
+          "standing leg curl machine form")
+      ]},
+      { name:"Calves", options:[
+        Ex("Standing Calf Raise Machine","machine","calves","4 sets × 12–15 reps","RPE 7–8",
+          ["Position your shoulders under the pads, balls of your feet on the platform, heels hanging off.",
+           "Let your heels drop down for a deep stretch.",
+           "Press up onto your toes as high as possible, squeezing your calves at the top.",
+           "Lower slowly back to a full stretch and repeat."],
+          [M("Bouncing at the bottom instead of controlling the stretch","Reduces tension and risks the Achilles. Pause briefly at the bottom before pressing up."),
+           M("Using short, small-range reps","Limits calf growth. Go from a full stretch to a full toe raise every rep."),
+           M("Bending the knees to help push","Takes work off the calves. Keep legs straight (soft knee lock) and isolate the ankle movement.")],
+          "standing calf raise machine form"),
+        Ex("Smith Machine Calf Raise","smith","calves","4 sets × 12–15 reps","RPE 7–8",
+          ["Place a step/block under the bar, position the bar across your upper back, balls of your feet on the block.",
+           "Unrack the bar and let your heels drop into a deep stretch.",
+           "Press up onto your toes as high as possible.",
+           "Lower slowly back down to the stretch position."],
+          [M("No block under the feet to allow a stretch","Cuts the range of motion short. Always elevate the balls of your feet on a step or plate."),
+           M("Rushing through reps with tiny pulses","Minimal stimulus. Slow down — full stretch to full contraction every rep."),
+           M("Knees bending during the raise","Shifts effort away from the calves. Keep legs straight throughout the set.")],
+          "smith machine calf raise form"),
+        Ex("Seated Calf Raise","machine","calves","3–4 sets × 15–20 reps","RPE 7–8",
+          ["Sit with your knees under the pad, balls of your feet on the platform.",
+           "Let your heels drop for a full stretch.",
+           "Press up onto your toes, squeezing hard at the top.",
+           "Lower slowly back to the stretch and repeat."],
+          [M("Bouncing the weight instead of controlled reps","Less muscle work. Pause at the bottom stretch each rep."),
+           M("Using a tiny range of motion","Undertrains the soleus. Go full stretch to full raise every single rep."),
+           M("Placing the pad too high on the knees","Uncomfortable and reduces leverage. Position the pad snug just above the knee.")],
+          "seated calf raise machine form")
+      ]}
+    ]
+  },
+
+  shoulders: {
+    label:"Shoulders", icon:"shoulders", cls:"shoulders",
+    sub:"Overhead press → Front raise → Lateral raise → Rear delt → Shrugs",
+    slots:[
+      { name:"Overhead Press", options:[
+        Ex("Dumbbell Shoulder Press","dumbbell","frontDelt","4 sets × 8–10 reps","RPE 7–8",
+          ["Sit or stand with dumbbells at shoulder height, palms facing forward.",
+           "Brace your core and press the dumbbells straight up until arms are extended.",
+           "Bring the dumbbells close together at the top without clanking them.",
+           "Lower slowly back to shoulder height with control."],
+          [M("Arching the lower back excessively to press the weight up","Spinal strain risk. Brace your core hard, or use a seated back-supported position if this keeps happening."),
+           M("Flaring elbows too wide at the bottom","Shoulder impingement risk. Start with elbows roughly under your wrists, slightly forward."),
+           M("Pressing the dumbbells forward instead of straight up","Reduces shoulder tension and adds strain. Press in a straight vertical line over your shoulders.")],
+          "dumbbell shoulder press form"),
+        Ex("Machine Shoulder Press","machine","frontDelt","4 sets × 8–10 reps","RPE 7–8",
+          ["Adjust the seat so the handles start at shoulder height.",
+           "Grip the handles with your back flat against the pad.",
+           "Press up until arms are extended without locking hard.",
+           "Lower slowly back to shoulder height."],
+          [M("Seat set too low","Handles start above head height, cutting range and stressing the shoulders. Adjust the seat so handles align with shoulder height at the bottom."),
+           M("Using leg drive or bouncing off the bottom","Reduces shoulder muscle work. Press smoothly with the shoulders, no bouncing."),
+           M("Shrugging shoulders up at the top of the press","Shifts tension to the traps. Keep shoulders down and back, press through a stable base.")],
+          "machine shoulder press form"),
+        Ex("Smith Machine Overhead Press","smith","frontDelt","4 sets × 8–10 reps","RPE 7–8",
+          ["Set a bench (or stand) so the bar starts at shoulder height.",
+           "Grip slightly wider than shoulders, unrack by rotating your wrists.",
+           "Press the bar straight up until arms are extended.",
+           "Lower under control back to shoulder height, then re-rack when finished."],
+          [M("Excessive lower back arch when pressing standing","Strain risk. Use a seated, back-supported position, or brace hard and keep glutes tight if standing."),
+           M("Positioning your body so the bar can't clear your chin/head comfortably","Creates an awkward, restricted path. Adjust your position so the bar travels in a straight unobstructed line."),
+           M("Flaring elbows too far back","Shoulder strain. Keep elbows roughly under the bar, not flared behind your torso.")],
+          "smith machine overhead press form")
+      ]},
+      { name:"Front Raise", options:[
+        Ex("Cable Front Raise","cable","frontDelt","3 sets × 12–15 reps","RPE 7",
+          ["Set the pulley to the lowest position and grip the handle with one hand, standing with your back to the machine.",
+           "Keep a slight elbow bend, raise your arm straight in front of you to shoulder height.",
+           "Pause briefly at the top, squeezing the front delt.",
+           "Lower slowly back down, keeping tension from the cable."],
+          [M("Using momentum by leaning back as you raise the arm","Reduces delt isolation. Keep your torso still and braced throughout."),
+           M("Raising the arm above shoulder height","Unnecessary shoulder strain with no added benefit. Stop the raise at shoulder height."),
+           M("Swinging the weight up fast","Less time under tension. Raise and lower on a slow, controlled 2-second tempo.")],
+          "cable front raise form"),
+        Ex("Dumbbell Front Raise","dumbbell","frontDelt","3 sets × 12–15 reps","RPE 7",
+          ["Stand holding dumbbells in front of your thighs, palms facing your body.",
+           "Keep a slight elbow bend, raise one or both dumbbells straight in front of you to shoulder height.",
+           "Pause briefly, then lower slowly back down.",
+           "Keep your torso still throughout, avoiding any backward lean."],
+          [M("Using body momentum/swinging the torso","Turns it into momentum, not delt work. Keep your core braced and torso upright and still."),
+           M("Raising the dumbbells too high above shoulder level","Adds strain without benefit. Cap the raise at shoulder height."),
+           M("Going too heavy and sacrificing form","Reduces isolation. Use lighter dumbbells than you'd curl and prioritize strict form.")],
+          "dumbbell front raise form")
+      ]},
+      { name:"Lateral Raise", options:[
+        Ex("Cable Lateral Raise","cable","lateralDelt","3–4 sets × 12–15 reps each side","RPE 7",
+          ["Set the pulley low, stand sideways to the machine, and grip the handle with your far hand across your body.",
+           "Keep a slight elbow bend and raise your arm out to the side, up to shoulder height.",
+           "Lead with the elbow, not the hand, pinky slightly up.",
+           "Lower slowly back down, keeping constant tension from the cable."],
+          [M("Using momentum by swinging the torso","Reduces delt isolation. Keep your torso still and raise with a slow, controlled motion."),
+           M("Raising the arm above shoulder height","Shifts stress to the traps. Stop the raise at shoulder height."),
+           M("Leading with the hand/wrist instead of the elbow","Less side-delt activation. Think about lifting from the elbow, hand trailing slightly.")],
+          "cable lateral raise form"),
+        Ex("Dumbbell Lateral Raise","dumbbell","lateralDelt","3–4 sets × 12–15 reps","RPE 7",
+          ["Stand with dumbbells at your sides, a slight bend in the elbows.",
+           "Raise both arms out to the sides simultaneously, up to shoulder height.",
+           "Lead with the elbows, keeping a slight forward tilt of the pinky.",
+           "Lower slowly back to your sides with control."],
+          [M("Using heavy weight and swinging with the hips/back","Turns it into momentum, not delt work. Use lighter weight and strict, controlled form."),
+           M("Shrugging shoulders up toward the ears","Recruits traps instead of delts. Keep shoulders pressed down throughout."),
+           M("Raising arms above shoulder height","Unnecessary joint stress with no extra benefit. Cap the raise at shoulder height.")],
+          "dumbbell lateral raise form"),
+        Ex("Machine Lateral Raise","machine","lateralDelt","3–4 sets × 12–15 reps","RPE 7",
+          ["Adjust the seat so the pivot point lines up with your shoulder.",
+           "Place your outer arms against the pads, elbows slightly bent.",
+           "Raise your arms out to shoulder height, leading with the elbows.",
+           "Lower slowly back to the start under control."],
+          [M("Seat height misaligned with the shoulder joint","Creates awkward leverage and uneven stress. Adjust the seat so the pivot matches your shoulder joint."),
+           M("Using body English (leaning side to side) to help lift","Reduces isolation. Sit tall and still, let the delts do the work."),
+           M("Letting the weight drop fast on the way down","Loses eccentric tension. Lower on a controlled 2-second count.")],
+          "machine lateral raise form")
+      ]},
+      { name:"Rear Delt", options:[
+        Ex("Reverse Pec Deck","machine","rearDelt","3 sets × 12–15 reps","RPE 7",
+          ["Sit facing into the machine with your chest against the pad, and grip the handles.",
+           "Adjust the seat so the handles are at shoulder height.",
+           "Pull your arms out and back in a wide arc, squeezing shoulder blades together.",
+           "Return slowly to the start, feeling a stretch across the rear delts."],
+          [M("Seat set too low or too high","Misaligns the pulling arc with the shoulder joint. Set the seat so handles line up with shoulder height."),
+           M("Turning it into a row by bending the elbows and pulling with the arms","Shifts work to the back instead of the rear delts. Keep a fixed, slight elbow bend and move from the shoulder."),
+           M("Using too much weight for only a tiny range","Undertrains the muscle. Lighten the load for a full, wide arc.")],
+          "reverse pec deck form"),
+        Ex("Cable Rear Delt Fly","cable","rearDelt","3 sets × 12–15 reps","RPE 7",
+          ["Set two pulleys at chest/shoulder height, cross the cables and grip opposite handles.",
+           "Stand centered with a slight forward hinge, arms extended in front of you.",
+           "Pull your arms out wide to the sides, squeezing rear delts and shoulder blades together.",
+           "Return slowly to the start with control."],
+          [M("Standing too upright instead of hinging forward slightly","Reduces rear-delt emphasis. Hinge forward around 15–30° from the hips."),
+           M("Bending the elbows a lot and pulling like a row","Shifts to the mid-back. Keep elbows only slightly bent and pull in a wide, straight-arm arc."),
+           M("Using momentum to fling the arms back","Less muscle tension. Move in a slow, controlled motion.")],
+          "cable rear delt fly form"),
+        Ex("Dumbbell Bent-Over Raise","dumbbell","rearDelt","3 sets × 12–15 reps","RPE 7",
+          ["Hold dumbbells and hinge forward at the hips until your torso is near-parallel to the floor.",
+           "Let your arms hang straight down with a slight bend in the elbows.",
+           "Raise the dumbbells out to the sides, squeezing shoulder blades together at the top.",
+           "Lower slowly back down with control."],
+          [M("Standing too upright during the raise","Turns it into a lateral raise, missing the rear delts. Keep your torso hinged close to parallel with the floor."),
+           M("Using momentum by jerking the torso up and down","Reduces isolation. Keep hips and torso still, move only at the shoulders."),
+           M("Rounding the lower back","Strain risk. Keep a flat back, soft knee bend, and braced core.")],
+          "dumbbell bent over rear delt raise form")
+      ]},
+      { name:"Shrugs", options:[
+        Ex("Barbell Shrug","barbell","traps","3–4 sets × 10–12 reps","RPE 7–8",
+          ["Stand holding a barbell in front of your thighs, arms straight, shoulder-width grip.",
+           "Keeping your arms straight throughout, shrug your shoulders straight up toward your ears.",
+           "Pause briefly at the top, squeezing your traps.",
+           "Lower slowly back to the starting position."],
+          [M("Rolling the shoulders in a circular motion","Adds no benefit and can irritate the shoulder joint. Move straight up and down only, no rolling."),
+           M("Using the arms to help heave the bar up","Reduces trap isolation. Keep arms straight and let the traps do all the lifting."),
+           M("Using too heavy a weight and only moving a tiny fraction","Limits the contraction. Lighten the load for a full shrug with a real squeeze at the top.")],
+          "barbell shrug form"),
+        Ex("Dumbbell Shrug","dumbbell","traps","3–4 sets × 10–12 reps","RPE 7–8",
+          ["Stand holding a dumbbell in each hand at your sides, arms straight.",
+           "Shrug your shoulders straight up toward your ears.",
+           "Pause and squeeze your traps at the top.",
+           "Lower slowly back down with control."],
+          [M("Bending the elbows to help lift","Takes tension off the traps. Keep arms straight and locked throughout."),
+           M("Rushing through short, bouncy reps","Less contraction. Pause for a full second at the top of each rep."),
+           M("Leaning the torso forward or back to cheat the weight up","Reduces isolation. Keep your torso upright and still.")],
+          "dumbbell shrug form"),
+        Ex("Smith Machine Shrug","smith","traps","3–4 sets × 10–12 reps","RPE 7–8",
+          ["Stand under the bar set at hip/thigh height, gripping shoulder-width.",
+           "Unrack the bar, keeping arms straight.",
+           "Shrug straight up toward your ears, squeezing at the top.",
+           "Lower slowly and repeat."],
+          [M("Using leg drive to bounce the weight up","Reduces trap isolation. Keep your legs still and lift with the traps only."),
+           M("Shrugging in a rolling motion","Doesn't target the traps any better and can strain the neck. Keep the movement a straight vertical line."),
+           M("Craning the neck up during the shrug","Neck strain risk. Keep your neck neutral, eyes forward.")],
+          "smith machine shrug form")
+      ]}
+    ]
+  },
+
+  arms: {
+    label:"Arms", icon:"arms", cls:"arms",
+    sub:"Biceps compound → Biceps isolation → Triceps compound → Triceps isolation → Forearms",
+    slots:[
+      { name:"Biceps Compound", options:[
+        Ex("Barbell Curl","barbell","biceps","4 sets × 8–10 reps","RPE 7–8",
+          ["Stand holding the bar with an underhand, shoulder-width grip, elbows close to your torso.",
+           "Curl the bar up by bending the elbows, keeping your upper arms still.",
+           "Squeeze the biceps hard at the top.",
+           "Lower slowly back to a full arm extension."],
+          [M("Swinging the torso and using hip momentum","Turns it into a cheat curl with less bicep work. Keep your torso still, elbows pinned to your sides."),
+           M("Letting elbows drift forward as the weight rises","Reduces bicep tension and adds shoulder involvement. Keep elbows fixed at your sides throughout."),
+           M("Only doing the top half of the rep","Half the muscle stimulus. Lower all the way to a full arm extension each rep.")],
+          "barbell curl proper form"),
+        Ex("Dumbbell Curl","dumbbell","biceps","4 sets × 8–10 reps","RPE 7–8",
+          ["Stand with a dumbbell in each hand, palms facing forward (or start neutral and rotate up).",
+           "Curl the dumbbells up, keeping elbows tucked at your sides.",
+           "Squeeze at the top, rotating the pinky slightly up for a full contraction.",
+           "Lower slowly back to full extension."],
+          [M("Swinging the dumbbells up with body momentum","Less bicep tension. Keep elbows locked at your sides and curl in a slow, controlled motion."),
+           M("Letting the elbows drift behind the torso","Unnatural strain on the joint. Keep upper arms vertical and still."),
+           M("Curling both arms unevenly with no control","Creates imbalance. Control both sides at the same tempo, whether alternating or together.")],
+          "dumbbell bicep curl form"),
+        Ex("Cable Bar Curl","cable","biceps","3–4 sets × 10–12 reps","RPE 7–8",
+          ["Attach a straight or EZ bar to a low pulley and stand facing the machine.",
+           "Grip the bar underhand, shoulder-width, elbows at your sides.",
+           "Curl the bar up toward your shoulders, keeping elbows fixed.",
+           "Lower slowly, keeping constant tension from the cable throughout."],
+          [M("Standing too close or too far from the machine","Alters the resistance curve. Stand at a distance where the cable pulls at a slight angle, keeping tension throughout."),
+           M("Leaning back to help lift the weight","Reduces bicep isolation. Keep your torso upright and still."),
+           M("Rushing the eccentric (letting the bar drop)","Loses half the benefit. Lower for a controlled 2-second count.")],
+          "cable curl bar form")
+      ]},
+      { name:"Biceps Isolation", options:[
+        Ex("Single-Arm Cable Curl","cable","biceps","3 sets × 10–12 reps each side","RPE 7",
+          ["Attach a single handle to a low pulley, stand side-on or facing the machine.",
+           "Grip with your elbow at your side, curl the handle up toward your shoulder.",
+           "Squeeze the bicep hard at the top.",
+           "Lower slowly to a full stretch, then repeat on the other side."],
+          [M("Letting the elbow drift forward or away from the body","Reduces isolation. Pin your elbow to your side for the entire rep."),
+           M("Twisting the torso to help curl the weight","Cheats the muscle. Keep hips and shoulders square, move only at the elbow."),
+           M("Using too much weight for a controlled tempo","Forces momentum into the lift. Choose a weight you can curl and lower with full control.")],
+          "single arm cable curl form"),
+        Ex("Preacher Curl Machine","machine","biceps","3 sets × 10–12 reps","RPE 7–8",
+          ["Sit with your upper arms flat against the preacher pad and grip the handles.",
+           "Curl the handles up, squeezing the biceps hard at the top.",
+           "Lower slowly, allowing a full stretch at the bottom without locking out abruptly.",
+           "Keep your upper arms glued to the pad the entire set."],
+          [M("Lifting the upper arms off the pad for leverage","Turns it into a swinging curl. Press your upper arms firmly into the pad the whole rep."),
+           M("Letting the weight drop fast at the bottom","Stresses the elbow tendon — a common preacher-curl injury point. Control the descent, especially the last few inches."),
+           M("Not fully extending the arms at the bottom","Partial range limits growth. Lower until your arms are just short of fully locked out.")],
+          "preacher curl machine form"),
+        Ex("Concentration Curl","dumbbell","biceps","3 sets × 10–12 reps each side","RPE 7",
+          ["Sit on a bench, elbow braced against the inside of your thigh, dumbbell hanging down.",
+           "Curl the dumbbell up toward your shoulder, keeping the elbow pinned to your thigh.",
+           "Squeeze hard at the top, focusing on the peak contraction.",
+           "Lower slowly to a full stretch, then switch sides."],
+          [M("Letting the elbow slide off the thigh mid-rep","Loses strict isolation. Press the elbow firmly against the inner thigh throughout."),
+           M("Using momentum by jerking the shoulder","Reduces bicep focus. Keep your upper body still and curl slowly."),
+           M("Rushing through reps without a peak squeeze","Less muscle activation. Pause and squeeze hard for a full second at the top of each rep.")],
+          "concentration curl form")
+      ]},
+      { name:"Triceps Compound", options:[
+        Ex("Cable Pushdown","cable","triceps","4 sets × 10–12 reps","RPE 7–8",
+          ["Attach a bar or rope to a high pulley, grip with elbows at your sides.",
+           "Keep your upper arms fixed, press the attachment down until arms are extended.",
+           "Squeeze your triceps hard at the bottom.",
+           "Let it rise slowly back up, keeping elbows pinned to your sides."],
+          [M("Letting elbows drift away from the body or flare out","Shifts work to shoulders/chest. Keep elbows locked at your sides the whole set."),
+           M("Leaning over the bar to use body weight","Reduces triceps isolation. Keep torso upright, let the triceps do the pressing."),
+           M("Only doing short top-range reps","Limits the stretch. Let the weight rise until your forearms are near parallel to the floor each rep.")],
+          "cable tricep pushdown form"),
+        Ex("Close-Grip Bench Press","barbell","triceps","4 sets × 8–10 reps","RPE 7–8",
+          ["Lie on a flat bench, grip the bar with hands just inside shoulder-width.",
+           "Unrack and lower the bar to your lower chest, keeping elbows tucked close to your body.",
+           "Press the bar back up, focusing on extending through the triceps.",
+           "Keep your wrists straight and stacked over your elbows throughout."],
+          [M("Gripping too narrow (hands touching)","Excessive wrist strain and reduced power. Keep hands just inside shoulder-width."),
+           M("Letting elbows flare out wide","Shifts emphasis back to the chest and stresses the shoulders. Keep elbows tracking close to your torso."),
+           M("Bouncing the bar off the chest","Injury risk and less triceps tension. Lower under control and press smoothly.")],
+          "close grip bench press form"),
+        Ex("Dip Machine","machine","triceps","3–4 sets × 8–10 reps","RPE 7–8",
+          ["Set the assistance/resistance level and step onto the platform, gripping the handles.",
+           "Keep your torso upright, elbows tracking backward (not flared) to target the triceps.",
+           "Lower until your upper arms are roughly parallel to the floor.",
+           "Press back up to full extension, squeezing triceps at the top."],
+          [M("Leaning far forward","Shifts emphasis onto the chest instead of the triceps. Keep your torso as upright as possible."),
+           M("Going too deep with flared elbows","Shoulder strain risk. Limit depth to where upper arms are about parallel to the floor, elbows tucked."),
+           M("Using momentum by bouncing at the bottom","Reduces muscle tension and risks the shoulder. Control both the descent and the press.")],
+          "dip machine form")
+      ]},
+      { name:"Triceps Isolation", options:[
+        Ex("Overhead Cable Extension","cable","triceps","3 sets × 10–12 reps","RPE 7",
+          ["Attach a rope to a low pulley, face away from the machine with the rope behind your head.",
+           "Step forward into a slight lean, elbows pointed up and forward, close to your head.",
+           "Extend your arms up and forward until nearly straight, spreading the rope apart at the top.",
+           "Lower slowly back behind your head, feeling a stretch in the triceps."],
+          [M("Letting elbows flare out wide","Reduces tension on the long head of the triceps. Keep elbows pointed forward, close to your ears."),
+           M("Moving the upper arms instead of just the forearms","Turns it into a shoulder movement. Keep upper arms still, hinge only at the elbow."),
+           M("Using a weight that forces you to arch your back","Strain risk. Lighten the load and keep a stable, slightly forward-leaning torso.")],
+          "overhead cable tricep extension form"),
+        Ex("Skull Crushers","barbell","triceps","3 sets × 10–12 reps","RPE 7",
+          ["Lie on a flat bench holding a barbell or EZ bar with arms extended above your chest.",
+           "Keeping your upper arms still, bend your elbows to lower the bar toward your forehead.",
+           "Stop just above the forehead, then extend back up.",
+           "Keep elbows pointed at the ceiling, not flaring out, throughout the set."],
+          [M("Letting elbows flare outward as the bar lowers","Shoulder strain and less tricep isolation. Keep elbows pointed straight up and fixed in place."),
+           M("Moving the upper arms back toward the head","Turns it into a different pressing movement. Keep upper arms perpendicular to the floor the whole rep."),
+           M("Using too much weight, risking the bar dropping too fast near the face","Real injury risk. Use a controlled, lighter weight and lower slowly.")],
+          "skull crushers tricep extension form"),
+        Ex("Single-Arm Cable Kickback","cable","triceps","3 sets × 12–15 reps each side","RPE 7",
+          ["Attach a single handle to a low pulley, hinge forward at the hips, upper arm parallel to the floor.",
+           "Keep your elbow bent at 90° and pinned at your side to start.",
+           "Extend your arm straight back, squeezing the triceps hard.",
+           "Return slowly to the 90° start position, then repeat."],
+          [M("Dropping the upper arm during the extension","Reduces triceps isolation. Keep your upper arm fixed and parallel to the floor throughout."),
+           M("Using momentum by swinging the arm","Less muscle tension. Extend and return in a slow, controlled motion."),
+           M("Standing too upright","Changes the resistance angle and reduces tension at full extension. Keep a solid forward hinge with a flat back.")],
+          "cable tricep kickback form")
+      ]},
+      { name:"Forearms", options:[
+        Ex("Dumbbell Wrist Curl","dumbbell","forearms","3 sets × 15–20 reps","RPE 7",
+          ["Sit with forearms resting on your thighs or a bench, palms facing up, wrists just off the edge.",
+           "Let the dumbbells roll down to your fingertips, wrists fully extended.",
+           "Curl the dumbbells up by flexing only your wrists, as high as possible.",
+           "Lower slowly back down to the stretched position."],
+          [M("Moving the whole forearm/elbow instead of isolating the wrist","Reduces forearm-specific stimulus. Keep forearms pinned to your legs/bench, move only at the wrist."),
+           M("Using momentum to bounce the weight up","Less muscle tension. Curl in a slow, controlled motion each rep."),
+           M("Going too heavy, limiting range of motion","Undertrains the forearm flexors. Use a lighter weight that allows a full wrist-curl range.")],
+          "dumbbell wrist curl form"),
+        Ex("Cable Wrist Curl","cable","forearms","3 sets × 15–20 reps","RPE 7",
+          ["Attach a straight bar to a low pulley, kneel or sit facing the machine with forearms resting on your thighs.",
+           "Grip the bar underhand and let your wrists extend down under the weight.",
+           "Curl the bar up using only wrist flexion.",
+           "Lower slowly back to the stretched position."],
+          [M("Letting the forearms lift off your thighs","Turns it into an arm curl instead of a wrist curl. Keep forearms glued to your legs throughout."),
+           M("Rushing through with small, fast reps","Less time under tension. Slow the tempo — full range each rep."),
+           M("Gripping too wide or too narrow","Causes wrist strain and reduced control. Use a shoulder-width grip on the bar.")],
+          "cable wrist curl form"),
+        Ex("Reverse Curl","barbell","forearms","3 sets × 10–12 reps","RPE 7",
+          ["Hold a barbell or dumbbells with an overhand (palms-down) grip, shoulder-width.",
+           "Keeping elbows at your sides, curl the weight up toward your shoulders.",
+           "Squeeze at the top, keeping your wrists straight, not curling them.",
+           "Lower slowly back to a full arm extension."],
+          [M("Letting the wrists curl or break at the top","Reduces forearm tension and adds strain. Keep wrists locked straight throughout."),
+           M("Swinging the torso to lift the weight","Loses isolation. Keep your body still, elbows pinned to your sides."),
+           M("Going too heavy, causing grip to fail before the forearms are worked","Defeats the purpose. Use a lighter weight than your regular curl and focus on strict form.")],
+          "reverse curl forearm form")
+      ]}
+    ]
+  }
+};
+
+const DAY_ORDER = ["chest","back","legs","shoulders","arms"];
+
+/* =========================================================
+   RENDER: HOME
+   ========================================================= */
+const dayGrid = document.getElementById("dayGrid");
+function renderHome(){
+  dayGrid.innerHTML = DAY_ORDER.map(key=>{
+    const d = DB[key];
+    const exCount = d.slots.length;
+    return `<button class="day-card ${d.cls}" data-day="${key}">
+      <div class="watermark">${ICONS.day[d.icon]}</div>
+      <div class="sheen"></div>
+      <div class="top">
+        <div>
+          <h2>${d.label}</h2>
+          <div class="meta">${exCount} exercises · ${d.sub}</div>
+        </div>
+        <div class="badge">${ICONS.day[d.icon]}</div>
+      </div>
+      <div class="chev">Start ${ICONS.chevronRight}</div>
+    </button>`;
+  }).join("");
+}
+
+/* =========================================================
+   RENDER: DAY
+   ========================================================= */
+const viewHome = document.getElementById("view-home");
+const viewDay = document.getElementById("view-day");
+const dayTitle = document.getElementById("dayTitle");
+const daySub = document.getElementById("daySub");
+const topbarTitle = document.getElementById("topbarTitle");
+const slotsWrap = document.getElementById("slotsWrap");
+const recapWrap = document.getElementById("recapWrap");
+
+let currentDay = null;
+
+const appEl = document.getElementById("app");
+function resetScroll(){
+  window.scrollTo(0,0);
+  appEl.scrollTop = 0;
+}
+
+function goHome(){
+  currentDay = null;
+  viewDay.classList.remove("active");
+  viewHome.classList.add("active");
+  resetScroll();
+}
+
+function openDay(key){
+  currentDay = key;
+  applyTheme(key);
+  const d = DB[key];
+  dayTitle.textContent = d.label + " Day";
+  daySub.textContent = d.sub;
+  topbarTitle.textContent = d.label;
+
+  slotsWrap.innerHTML = d.slots.map((slot, si)=>{
+    const cards = slot.options.map((ex, oi)=>{
+      const photo = EXERCISE_IMG[ex.name];
+      return `
+      <div class="ex-card" data-slot="${si}" data-opt="${oi}" tabindex="0">
+        ${photo ? `<div class="ex-photo"><img src="${photo}" loading="lazy" decoding="async" alt="" onerror="this.closest('.ex-photo').remove()"></div>` : ""}
+        <div class="ex-card-body">
+          <div class="row1">
+            <div class="ex-thumb">${ICONS.equip[ex.equip]}</div>
+            <div class="name-wrap">
+              <h4>${ex.name}</h4>
+              <div class="equip">${EQUIP_LABEL[ex.equip]}</div>
+            </div>
+          </div>
+          <div class="stats">
+            <span class="pill">${ex.sets}</span>
+          </div>
+          <div class="tap-row"><span>Tap for details</span>${ICONS.chevronRight}</div>
+        </div>
+      </div>`;
+    }).join("") + `<div class="spacer"></div>`;
+
+    const dots = slot.options.length > 1
+      ? `<div class="dots" data-dots="${si}">${slot.options.map((_,i)=>`<div class="dot${i===0?' active':''}"></div>`).join("")}</div>`
+      : "";
+
+    const navArrows = slot.options.length > 1
+      ? `<button class="car-nav prev" data-nav="prev" data-carousel="${si}" aria-label="Previous">${ICONS.chevronLeft}</button>
+         <button class="car-nav next" data-nav="next" data-carousel="${si}" aria-label="Next">${ICONS.chevronRight}</button>`
+      : "";
+
+    return `<div class="slot">
+      <div class="slot-head">
+        <span class="slot-num">${si+1}</span>
+        <h3>${slot.name}</h3>
+        ${slot.options.length>1 ? `<span class="swipe-hint">swipe ↔</span>` : ""}
+      </div>
+      <div class="carousel-wrap">
+        <div class="carousel" data-carousel="${si}">${cards}</div>
+        ${navArrows}
+      </div>
+      ${dots}
+    </div>`;
+  }).join("");
+
+  recapWrap.innerHTML = `<h3>Today's Order</h3>
+    <ol>${d.slots.map(s=>`<li>${s.name}</li>`).join("")}</ol>
+    <p class="note">Pick any variation via swipe for each slot above — the order stays compound-to-isolation either way.</p>`;
+
+  viewHome.classList.remove("active");
+  viewDay.classList.add("active");
+  resetScroll();
+  attachCarouselListeners();
+}
+
+function attachCarouselListeners(){
+  document.querySelectorAll(".carousel").forEach(car=>{
+    const si = car.getAttribute("data-carousel");
+    const dotsWrap = document.querySelector(`[data-dots="${si}"]`);
+    if(!dotsWrap) return;
+    let ticking = false;
+    car.addEventListener("scroll", ()=>{
+      if(ticking) return;
+      ticking = true;
+      requestAnimationFrame(()=>{
+        const cards = car.querySelectorAll(".ex-card");
+        if(cards.length){
+          const cardW = cards[0].getBoundingClientRect().width + 12;
+          const idx = Math.round(car.scrollLeft / cardW);
+          dotsWrap.querySelectorAll(".dot").forEach((dot,i)=>{
+            dot.classList.toggle("active", i===Math.min(idx, cards.length-1));
+          });
+        }
+        ticking = false;
+      });
+    }, {passive:true});
+  });
+
+  /* Desktop hover arrows — no-op on touch devices since they're hidden there */
+  document.querySelectorAll(".car-nav").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const car = document.querySelector(`.carousel[data-carousel="${btn.getAttribute("data-carousel")}"]`);
+      const card = car.querySelector(".ex-card");
+      if(!car || !card) return;
+      const step = card.getBoundingClientRect().width + 12;
+      car.scrollBy({left: btn.getAttribute("data-nav")==="next" ? step : -step, behavior:"smooth"});
+    });
+  });
+}
+
+/* =========================================================
+   DETAIL SHEET
+   ========================================================= */
+const sheetOverlay = document.getElementById("sheet-overlay");
+const sheet = document.getElementById("sheet");
+const sheetContent = document.getElementById("sheetContent");
+const sheetHandleArea = document.getElementById("sheetHandleArea");
+
+function openSheet(ex){
+  const glow = MUSCLE_MAP[ex.muscle] || MUSCLE_MAP.chest;
+  const photo = EXERCISE_IMG[ex.name];
+  const bodyDiagram = `<div class="body-diagram" id="sheetBodyDiagram"${photo ? ' style="display:none"' : ""}>
+        ${BODY_SVG}
+        <div class="muscle-glow" style="top:${glow.top};left:${glow.left};width:${glow.width};height:${glow.height};"></div>
+      </div>`;
+  sheetContent.innerHTML = `
+    ${photo ? `<div class="sheet-photo" id="sheetPhotoWrap"><img src="${photo}" loading="lazy" decoding="async" alt="" onerror="this.closest('#sheetPhotoWrap').remove(); const d=document.getElementById('sheetBodyDiagram'); if(d) d.style.display='';">
+      <div class="sheet-photo-badge">${BODY_SVG}</div>
+    </div>` : ""}
+    <div class="sheet-visual">
+      ${bodyDiagram}
+      <div class="sheet-title-block">
+        <h2>${ex.name}</h2>
+        <div class="sheet-equip-row">${ICONS.equip[ex.equip]}<span>${EQUIP_LABEL[ex.equip]}</span></div>
+      </div>
+    </div>
+
+    <a class="yt-link" href="https://www.youtube.com/results?search_query=${encodeURIComponent(ex.yt)}" target="_blank" rel="noopener noreferrer">
+      ${ICONS.play} Watch a demo on YouTube
+    </a>
+
+    <div class="sheet-section">
+      <h3>Sets &amp; Effort</h3>
+      <div class="effort-card">
+        <div class="item"><div class="label">Sets × Reps</div><div class="val">${ex.sets}</div></div>
+        <div class="item"><div class="label">Effort</div><div class="val">${ex.rpe}</div></div>
+      </div>
+    </div>
+
+    <div class="sheet-section">
+      <h3>How to do it</h3>
+      <div class="steps-list">
+        ${ex.steps.map((s,i)=>`<div class="step-item"><div class="step-num">${i+1}</div><p>${s}</p></div>`).join("")}
+      </div>
+    </div>
+
+    <div class="sheet-section">
+      <h3>Common Mistakes</h3>
+      <div class="mistakes-list">
+        ${ex.mistakes.map(mi=>`<div class="mistake-item"><div class="m">${mi.m}</div><div class="f">${mi.f}</div></div>`).join("")}
+      </div>
+    </div>
+  `;
+  sheetOverlay.classList.add("open");
+  sheet.classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function closeSheet(){
+  sheet.classList.remove("open");
+  sheetOverlay.classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+/* Swipe-down-to-dismiss on the sheet handle area (real touch events) */
+(function(){
+  let startY = 0, currentY = 0, dragging = false;
+  sheetHandleArea.addEventListener("touchstart", (e)=>{
+    startY = e.touches[0].clientY;
+    dragging = true;
+    sheet.classList.add("dragging");
+  }, {passive:true});
+  sheetHandleArea.addEventListener("touchmove", (e)=>{
+    if(!dragging) return;
+    currentY = e.touches[0].clientY - startY;
+    if(currentY < 0) currentY = 0;
+    sheet.style.transform = `translateY(${currentY}px)`;
+  }, {passive:true});
+  sheetHandleArea.addEventListener("touchend", ()=>{
+    dragging = false;
+    sheet.classList.remove("dragging");
+    sheet.style.transform = "";
+    if(currentY > 110){
+      closeSheet();
+    }
+    currentY = 0;
+  });
+})();
+
+sheetOverlay.addEventListener("click", (e)=>{
+  if(e.target === sheetOverlay) closeSheet();
+});
+document.getElementById("sheetCloseBtn").addEventListener("click", closeSheet);
+
+/* =========================================================
+   EVENT DELEGATION
+   ========================================================= */
+dayGrid.addEventListener("click", (e)=>{
+  const card = e.target.closest(".day-card");
+  if(card) openDay(card.getAttribute("data-day"));
+});
+
+document.getElementById("backBtn").addEventListener("click", goHome);
+
+slotsWrap.addEventListener("click", (e)=>{
+  const card = e.target.closest(".ex-card");
+  if(!card) return;
+  const si = +card.getAttribute("data-slot");
+  const oi = +card.getAttribute("data-opt");
+  const ex = DB[currentDay].slots[si].options[oi];
+  openSheet(ex);
+});
+
+/* =========================================================
+   DARK MODE (session only — nothing persisted)
+   ========================================================= */
+function toggleDark(){
+  const isDark = document.documentElement.classList.toggle("dark");
+  document.getElementById("darkToggleHome").textContent = isDark ? "☀️" : "🌙";
+  document.getElementById("darkToggleDay").textContent = isDark ? "☀️" : "🌙";
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if(meta) meta.setAttribute("content", isDark ? "#000000" : "#F2F2F7");
+}
+document.getElementById("darkToggleHome").addEventListener("click", toggleDark);
+document.getElementById("darkToggleDay").addEventListener("click", toggleDark);
+
+/* Respect system preference on load, session-only */
+if(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches){
+  toggleDark();
+}
+
+/* Topbar shadow on scroll — bound to both the window (mobile) and #app
+   (the desktop frame scrolls internally, not the window). */
+function updateTopbarShadow(){
+  const y = window.scrollY || appEl.scrollTop || 0;
+  document.getElementById("topbar").classList.toggle("scrolled", y > 4);
+}
+window.addEventListener("scroll", updateTopbarShadow, {passive:true});
+appEl.addEventListener("scroll", updateTopbarShadow, {passive:true});
+
+/* Prevent double-tap-to-zoom while keeping normal taps snappy */
+let lastTouchEnd = 0;
+document.addEventListener("touchend", (e)=>{
+  const now = Date.now();
+  if(now - lastTouchEnd <= 300){
+    e.preventDefault();
+  }
+  lastTouchEnd = now;
+}, {passive:false});
+
+/* Prevent pinch-zoom gesture */
+document.addEventListener("gesturestart", (e)=> e.preventDefault());
+
+/* =========================================================
+   INIT
+   ========================================================= */
+renderHome();
+
+})();
+</script>
+</body>
+</html>
